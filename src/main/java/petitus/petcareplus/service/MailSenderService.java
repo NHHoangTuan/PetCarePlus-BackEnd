@@ -29,6 +29,9 @@ public class MailSenderService {
     @Value("${spring.mail.username}")
     private String senderAddress;
 
+    @Value("${app.url}")
+    private String appUrl;
+
     private final MessageSourceService messageSourceService;
 
     private final CipherService cipherService;
@@ -43,8 +46,10 @@ public class MailSenderService {
         if (user == null) {
             throw new ResourceNotFoundException(messageSourceService.get("user_token_null"));
         }
-        String verificationLink = "http://localhost:8080/auth/email-verification/" + cipherService.encryptForURL(String.valueOf(token.getId()));
-        String cancelRegistrationLink = "http://localhost:8080/auth/cancel-registration/" + cipherService.encryptForURL(user.getEmail());
+        String verificationLink = appUrl + "/auth/email-verification/"
+                + cipherService.encryptForURL(String.valueOf(token.getId()));
+        String cancelRegistrationLink = appUrl + "/auth/cancel-registration/"
+                + cipherService.encryptForURL(user.getEmail());
 
         Context ctx = createContext();
         ctx.setVariable("name", user.getName());
@@ -56,20 +61,20 @@ public class MailSenderService {
 
         try {
 
-            send(user.getEmail(),subject,
+            send(user.getEmail(), subject,
                     templateEngine.process("mail/user-email-verification", ctx));
         } catch (Exception e) {
             log.error("Failed to send email: {}", e.getMessage(), e);
         }
     }
-    
+
     @Async
     public void sendPasswordResetEmail(PasswordResetToken token) {
         User user = token.getUser();
         if (user == null) {
             throw new ResourceNotFoundException(messageSourceService.get("user_token_null"));
         }
-        
+
         Context ctx = createContext();
         ctx.setVariable("name", user.getName());
         ctx.setVariable("fullName", user.getFullName());
@@ -94,9 +99,9 @@ public class MailSenderService {
     }
 
     private void send(
-                      String to,
-                      String subject,
-                      String text) throws MessagingException, MailException {
+            String to,
+            String subject,
+            String text) throws MessagingException, MailException {
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
