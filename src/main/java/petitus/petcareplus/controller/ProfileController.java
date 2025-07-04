@@ -28,6 +28,7 @@ import java.util.UUID;
 @RequestMapping("/profiles")
 @SecurityRequirement(name = "bearerAuth")
 public class ProfileController extends BaseController {
+
         private final String[] SORT_COLUMNS = new String[] { "id", "rating", "dob", "gender", "createdAt", "updatedAt",
                         "deletedAt" };
         private final ProfileService profileService;
@@ -104,7 +105,7 @@ public class ProfileController extends BaseController {
                                                 .query(query)
                                                 .isServiceProvider(isServiceProvider)
                                                 .location(location)
-                                                // .rating(rating)
+                                                .rating(rating)
                                                 .skills(skills)
                                                 .availableAtStart(availableAtStart)
                                                 .availableAtEnd(availableAtEnd)
