@@ -61,4 +61,29 @@ jobs:
           app-name: 'petcareplus'
           slot-name: 'Production'
           package: '*.jar'
+      - name: Set Environment Variables
+        run: |
+          az webapp config appsettings set \
+            --resource-group your-resource-group \
+            --name petcareplus \
+            --settings \
+              DATABASE_PUBLIC_URL="${{ secrets.DATABASE_PUBLIC_URL }}" \
+              POSTGRES_USER="${{ secrets.POSTGRES_USER }}" \
+              POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" \
+              REDIS_PUBLIC_URL="${{ secrets.REDIS_PUBLIC_URL }}" \
+              REDISPORT="${{ secrets.REDISPORT }}" \
+              REDISPASSWORD="${{ secrets.REDISPASSWORD }}" \
+              SPRING_MAIL_USERNAME="${{ secrets.SPRING_MAIL_USERNAME }}" \
+              SPRING_MAIL_PASSWORD="${{ secrets.SPRING_MAIL_PASSWORD }}" \
+              VNPAY_SECRET_KEY="${{ secrets.VNPAY_SECRET_KEY }}" \
+              VNPAY_MERCHANT_ID="${{ secrets.VNPAY_MERCHANT_ID }}" \
+              PAYOS_CLIENT_ID="${{ secrets.PAYOS_CLIENT_ID }}" \
+              PAYOS_CHECKSUM_KEY="${{ secrets.PAYOS_CHECKSUM_KEY }}" \
+              PAYOS_API_KEY="${{ secrets.PAYOS_API_KEY }}" \
+              FIREBASE_SERVICE_ACCOUNT_BASE64="${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}" \
+              CLOUDINARY_CLOUD_NAME="${{ secrets.CLOUDINARY_CLOUD_NAME }}" \
+              CLOUDINARY_API_SECRET="${{ secrets.CLOUDINARY_API_SECRET }}" \
+              CLOUDINARY_API_KEY="${{ secrets.CLOUDINARY_API_KEY }}" \
+              APPLICATION_SECURITY_JWT_SECRET_KEY="${{ secrets.APPLICATION_SECURITY_JWT_SECRET_KEY }}" \
+              SPRING_PROFILES_ACTIVE="azure"
           
