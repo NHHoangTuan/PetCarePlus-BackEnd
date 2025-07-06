@@ -64,7 +64,7 @@ jobs:
       - name: Set Environment Variables
         run: |
           az webapp config appsettings set \
-            --resource-group your-resource-group \
+            --resource-group petcareplus \
             --name petcareplus \
             --settings \
               DATABASE_PUBLIC_URL="${{ secrets.DATABASE_PUBLIC_URL }}" \
