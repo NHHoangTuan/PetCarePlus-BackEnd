@@ -1,10 +1,16 @@
 package petitus.petcareplus.dto.request.pet;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import petitus.petcareplus.utils.enums.Species;
 
 @Data
-public class UpdatePetRequest {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class AdminUpdatePetRequest {
     private String name;
     private Integer age;
     private Species species;
