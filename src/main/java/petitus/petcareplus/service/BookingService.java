@@ -566,6 +566,7 @@ public class BookingService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public Page<AdminBookingResponse> getAllBookingsForAdmin(PaginationCriteria pagination,
             BookingCriteria criteria) {
 
@@ -576,6 +577,7 @@ public class BookingService {
         return bookings.map(this::mapToAdminBookingResponse);
     }
 
+    @Transactional(readOnly = true)
     public AdminBookingResponse getBookingByIdForAdmin(UUID bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException(messageSourceService.get("booking_not_found")));
