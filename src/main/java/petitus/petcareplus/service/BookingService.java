@@ -220,6 +220,7 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
+    @Transactional(readOnly = true)
     public BookingResponse getBooking(UUID userId, UUID bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException(messageSourceService.get("booking_not_found")));
@@ -237,23 +238,21 @@ public class BookingService {
         return mapToBookingResponse(booking);
     }
 
+    @Transactional(readOnly = true)
     public Page<BookingResponse> getUserBookings(UUID userId, PaginationCriteria pagination) {
         PageRequest pageRequest = PageRequestBuilder.build(pagination);
         Page<Booking> bookings = bookingRepository.findAllByUserId(userId, pageRequest);
         return bookings.map(this::mapToBookingResponse);
     }
 
+    @Transactional(readOnly = true)
     public Page<BookingResponse> getProviderBookings(UUID providerId, PaginationCriteria pagination) {
         PageRequest pageRequest = PageRequestBuilder.build(pagination);
         Page<Booking> bookings = bookingRepository.findAllByProviderId(providerId, pageRequest);
         return bookings.map(this::mapToBookingResponse);
     }
 
-    public Page<BookingResponse> getProviderBookings(UUID providerId, Pageable pageable) {
-        return bookingRepository.findAllByProviderId(providerId, pageable)
-                .map(this::mapToBookingResponse);
-    }
-
+    @Transactional(readOnly = true)
     public Page<BookingResponse> getUserBookingsByStatus(UUID userId, BookingStatus status,
             PaginationCriteria pagination) {
         try {
@@ -266,6 +265,7 @@ public class BookingService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Page<BookingResponse> getProviderBookingsByStatus(UUID providerId, BookingStatus status,
             PaginationCriteria pagination) {
         try {
@@ -277,6 +277,7 @@ public class BookingService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Page<BookingResponse> getProviderBookingsForDateRange(UUID providerId, LocalDateTime startDate,
             LocalDateTime endDate, PaginationCriteria pagination) {
         PageRequest pageRequest = PageRequestBuilder.build(pagination);
