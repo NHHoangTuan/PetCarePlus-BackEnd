@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -305,57 +304,6 @@ public class BookingService {
         }
 
     }
-
-    // private void validateStatusTransition(BookingStatus currentStatus,
-    // BookingStatus newStatus, boolean isProvider,
-    // boolean isUser) {
-    // // Define valid transitions
-    // Set<BookingStatus> validTransitions = new HashSet<>();
-
-    // switch (currentStatus) {
-    // case PENDING:
-    // if (isProvider) {
-    // validTransitions.add(BookingStatus.ACCEPTED);
-    // validTransitions.add(BookingStatus.CANCELLED);
-    // }
-    // if (isUser) {
-    // validTransitions.add(BookingStatus.CANCELLED);
-    // }
-    // break;
-    // case ACCEPTED:
-    // if (isProvider) {
-    // validTransitions.add(BookingStatus.ONGOING);
-    // validTransitions.add(BookingStatus.CANCELLED);
-    // }
-    // if (isUser) {
-    // validTransitions.add(BookingStatus.CANCELLED);
-    // }
-    // break;
-    // case ONGOING:
-    // if (isProvider) {
-    // validTransitions.add(BookingStatus.SERVICE_DONE);
-    // validTransitions.add(BookingStatus.CANCELLED);
-    // }
-    // break;
-    // case SERVICE_DONE:
-    // if (isUser) {
-    // validTransitions.add(BookingStatus.COMPLETED);
-    // validTransitions.add(BookingStatus.CANCELLED);
-    // }
-    // break;
-    // case COMPLETED:
-    // case CANCELLED:
-    // // No transitions allowed from these terminal states
-    // validTransitions = Collections.emptySet();
-    // break;
-    // }
-
-    // if (!validTransitions.contains(newStatus)) {
-    // throw new
-    // BadRequestException(messageSourceService.get("invalid_status_transition",
-    // new Object[] { currentStatus.name(), newStatus.name() }));
-    // }
-    // }
 
     private void validateStatusTransition(BookingStatus currentStatus, BookingStatus newStatus, boolean isProvider,
             boolean isUser) {
