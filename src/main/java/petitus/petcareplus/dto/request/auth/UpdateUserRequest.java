@@ -6,20 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import petitus.petcareplus.dto.annotation.FieldMatch;
-import petitus.petcareplus.dto.annotation.Password;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-@FieldMatch(first = "password", second = "passwordConfirm", message = "{password_mismatch}")
 public class UpdateUserRequest {
-    @Password(message = "{invalid_password}")
-    private String password;
-
-    private String passwordConfirm;
-
     @Email(message = "{email_invalid}")
     private String email;
 
