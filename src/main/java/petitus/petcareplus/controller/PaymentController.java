@@ -31,33 +31,41 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping("/create-vnpay")
-    @PreAuthorize("hasAuthority('USER')")
-    @Operation(summary = "Create VNPAY payment URL", description = "Create a payment URL for VNPAY payment gateway")
-    public ResponseEntity<PaymentUrlResponse> createVnpayPayment(
-            @AuthenticationPrincipal JwtUserDetails userDetails,
-            @Valid @RequestBody CreatePaymentRequest request) {
-        PaymentUrlResponse response = paymentService.createVnPayUrl(userDetails.getId(), request);
-        return ResponseEntity.ok(response);
-    }
+    // @PostMapping("/create-vnpay")
+    // @PreAuthorize("hasAuthority('USER')")
+    // @Operation(summary = "Create VNPAY payment URL", description = "Create a
+    // payment URL for VNPAY payment gateway")
+    // public ResponseEntity<PaymentUrlResponse> createVnpayPayment(
+    // @AuthenticationPrincipal JwtUserDetails userDetails,
+    // @Valid @RequestBody CreatePaymentRequest request) {
+    // PaymentUrlResponse response =
+    // paymentService.createVnPayUrl(userDetails.getId(), request);
+    // return ResponseEntity.ok(response);
+    // }
 
-    @GetMapping("/vnpay-ipn")
-    @Operation(summary = "VNPAY IPN URL", description = "Handle the IPN from VNPAY payment gateway")
-    public ResponseEntity<Map<String, String>> vnpayIpn(HttpServletRequest request) {
+    // @GetMapping("/vnpay-ipn")
+    // @Operation(summary = "VNPAY IPN URL", description = "Handle the IPN from
+    // VNPAY payment gateway")
+    // public ResponseEntity<Map<String, String>> vnpayIpn(HttpServletRequest
+    // request) {
 
-        Map<String, String> params = ParamsUtils.extractRawParams(request.getQueryString());
+    // Map<String, String> params =
+    // ParamsUtils.extractRawParams(request.getQueryString());
 
-        ResponseEntity<Map<String, String>> response = paymentService.handleIPNUrl(params);
-        return response;
-    }
+    // ResponseEntity<Map<String, String>> response =
+    // paymentService.handleIPNUrl(params);
+    // return response;
+    // }
 
-    @GetMapping("/booking/{bookingId}")
-    @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Get booking payments", description = "Get all payments for a booking")
-    public ResponseEntity<List<PaymentResponse>> getBookingPayments(
-            @AuthenticationPrincipal JwtUserDetails userDetails,
-            @PathVariable UUID bookingId) {
-        List<PaymentResponse> payments = paymentService.getBookingPayments(userDetails.getId(), bookingId);
-        return ResponseEntity.ok(payments);
-    }
+    // @GetMapping("/booking/{bookingId}")
+    // @PreAuthorize("isAuthenticated()")
+    // @Operation(summary = "Get booking payments", description = "Get all payments
+    // for a booking")
+    // public ResponseEntity<List<PaymentResponse>> getBookingPayments(
+    // @AuthenticationPrincipal JwtUserDetails userDetails,
+    // @PathVariable UUID bookingId) {
+    // List<PaymentResponse> payments =
+    // paymentService.getBookingPayments(userDetails.getId(), bookingId);
+    // return ResponseEntity.ok(payments);
+    // }
 }
