@@ -13,12 +13,14 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceResponse {
+public class ServiceResponseForProvider {
     private UUID id;
     private String name;
     private String description;
     private String iconUrl;
     private BigDecimal basePrice;
+
+    private boolean serviceAvailable;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
