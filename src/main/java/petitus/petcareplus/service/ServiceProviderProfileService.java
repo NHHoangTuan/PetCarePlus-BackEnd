@@ -31,6 +31,7 @@ public class ServiceProviderProfileService {
     private final RoleService roleService;
     private final MessageSourceService messageSourceService;
 
+    @Transactional(readOnly = true)
     public Page<ServiceProviderProfile> findAll(ServiceProviderProfileCriteria criteria,
             PaginationCriteria paginationCriteria) {
         return serviceProviderProfileRepository.findAll(new ServiceProviderProfileFilterSpecification(criteria),
