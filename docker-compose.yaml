@@ -12,6 +12,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-user}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
       SPRING_DATA_REDIS_HOST: redis
+      TZ: Asia/Ho_Chi_Minh
     env_file:
       - .env
     networks:
@@ -28,6 +29,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-pet-care-plus}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       POSTGRES_USER: ${POSTGRES_USER:-user}
+      TZ: Asia/Ho_Chi_Minh
     ports:
       - "5432:5432"
     env_file:
@@ -47,6 +49,8 @@ services:
       - redis-data:/data
     ports:
       - "6379:6379"
+    environment:
+      TZ: Asia/Ho_Chi_Minh
     networks:
       - pet-care-plus-network
 
