@@ -31,7 +31,8 @@ public class ServiceProviderProfileService {
     private final RoleService roleService;
     private final MessageSourceService messageSourceService;
 
-    public Page<ServiceProviderProfile> findAll(ServiceProviderProfileCriteria criteria, PaginationCriteria paginationCriteria) {
+    public Page<ServiceProviderProfile> findAll(ServiceProviderProfileCriteria criteria,
+            PaginationCriteria paginationCriteria) {
         return serviceProviderProfileRepository.findAll(new ServiceProviderProfileFilterSpecification(criteria),
                 PageRequestBuilder.build(paginationCriteria));
     }
@@ -44,6 +45,7 @@ public class ServiceProviderProfileService {
         return serviceProviderProfileRepository.findByProfileId(profileId);
     }
 
+    @Transactional(readOnly = true)
     public ServiceProviderProfile getMyServiceProviderProfile() {
         UUID userId = userService.getCurrentUserId();
         Profile profile = profileRepository.findByUserId(userId);
@@ -53,6 +55,7 @@ public class ServiceProviderProfileService {
         return null;
     }
 
+    @Transactional(readOnly = true)
     public boolean hasServiceProviderProfile() {
         UUID userId = userService.getCurrentUserId();
         Profile profile = profileRepository.findByUserId(userId);
@@ -75,16 +78,16 @@ public class ServiceProviderProfileService {
     public void saveServiceProviderProfile(ServiceProviderProfileRequest serviceProviderProfileRequest) {
         User user = userService.getUser();
         Profile existingProfile = profileRepository.findByUserId(user.getId());
-        
+
         if (existingProfile == null) {
             throw new RuntimeException(messageSourceService.get("profile_not_found"));
         }
-        
+
         // Check if user already has a service provider profile
         if (existingProfile.isServiceProvider() && existingProfile.getServiceProviderProfile() != null) {
             throw new DataExistedException(messageSourceService.get("service_provider_profile_already_exists"));
         }
-        
+
         // Double check using repository method
         validateServiceProfileExists(existingProfile.getId());
 
@@ -108,7 +111,7 @@ public class ServiceProviderProfileService {
         // Update user role
         user.setRole(roleService.findByName(Constants.RoleEnum.SERVICE_PROVIDER));
         userRepository.save(user);
-        
+
         // Save the profile first (which will cascade to service provider profile)
         profileRepository.save(existingProfile);
     }
@@ -140,4 +143,4 @@ public class ServiceProviderProfileService {
         // Save the service provider profile
         serviceProviderProfileRepository.save(existingServiceProviderProfile);
     }
-} 
+}
