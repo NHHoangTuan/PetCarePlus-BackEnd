@@ -6,9 +6,12 @@ import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import petitus.petcareplus.dto.request.profile.ServiceProviderProfileRequest;
 import petitus.petcareplus.dto.response.SuccessResponse;
@@ -62,6 +65,7 @@ public class ServiceProviderProfileController extends BaseController {
                                 .build());
         }
 
+        @Transactional(readOnly = true)
         @GetMapping
         @Operation(tags = {
                         "Service Provider Profile" }, summary = "Get all service provider profiles", description = "API để lấy danh sách tất cả service provider profile")
@@ -142,22 +146,33 @@ public class ServiceProviderProfileController extends BaseController {
                                 ServiceProviderProfileResponse.convert(serviceProviderProfile, reviewCount.intValue()));
         }
 
+        @Transactional(readOnly = true)
         @GetMapping("/me")
         @Operation(tags = {
                         "Service Provider Profile" }, summary = "Get my service provider profile", description = "API để lấy thông tin service provider profile của tôi")
         public ResponseEntity<ServiceProviderProfileResponse> getMyServiceProviderProfile() {
-                ServiceProviderProfile serviceProviderProfile = serviceProviderProfileService
-                                .getMyServiceProviderProfile();
-                log.info("----------get my service provider profile");
-                if (serviceProviderProfile == null) {
-                        throw new RuntimeException(messageSourceService.get("service_provider_profile_not_found"));
+                try {
+                        ServiceProviderProfile serviceProviderProfile = serviceProviderProfileService
+                                        .getMyServiceProviderProfile();
+                        if (serviceProviderProfile == null) {
+                                throw new RuntimeException(
+                                                messageSourceService.get("service_provider_profile_not_found"));
+                        }
+                        // Force initialize lazy properties
+                        Hibernate.initialize(serviceProviderProfile.getProfile());
+                        if (serviceProviderProfile.getProfile() != null) {
+                                Hibernate.initialize(serviceProviderProfile.getProfile().getUser());
+                        }
+                        UUID providerId = serviceProviderProfile.getProfile().getUser().getId();
+
+                        Long reviewCount = serviceReviewService.getProviderReviewCount(providerId);
+
+                        return ResponseEntity.ok(
+                                        ServiceProviderProfileResponse.convert(serviceProviderProfile,
+                                                        reviewCount.intValue()));
+                } catch (Exception e) {
+                        log.error("Error in /me endpoint", e);
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 }
-                log.info("----------service provider ");
-                UUID providerId = serviceProviderProfile.getProfile().getUser().getId();
-                log.info("----------provider id: {}", providerId);
-                Long reviewCount = serviceReviewService.getProviderReviewCount(providerId);
-                log.info("----------review count: {}", reviewCount);
-                return ResponseEntity.ok(
-                                ServiceProviderProfileResponse.convert(serviceProviderProfile, reviewCount.intValue()));
         }
 }
