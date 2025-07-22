@@ -162,7 +162,7 @@ public class ServiceProviderProfileService {
         // log profile details
         log.info("Profile found: {}, isServiceProvider: {}", profile.getId(), profile.isServiceProvider());
         // log service provider profile details
-        log.info("ServiceProviderProfile: {}", profile.getServiceProviderProfile());
+        log.info("ServiceProviderProfile: {}", profile.getServiceProviderProfile().getId());
         if (profile != null && profile.isServiceProvider()) {
             ServiceProviderProfile serviceProviderProfile = profile.getServiceProviderProfile();
             if (serviceProviderProfile == null) {
