@@ -159,7 +159,7 @@ public class ServiceProviderProfileController extends BaseController {
         }
 
         @Transactional(readOnly = true)
-        @GetMapping("/test/{id}")
+        @GetMapping("/test/{serviceProviderProfileId}")
         @Operation(tags = {
                         "Service Provider Profile" }, summary = "Get my service provider profile", description = "API để lấy thông tin service provider profile của tôi")
         public ResponseEntity<ServiceProviderProfileResponse> getMyServiceProviderProfile2(
