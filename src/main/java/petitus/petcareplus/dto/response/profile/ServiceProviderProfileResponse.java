@@ -10,9 +10,14 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 @Getter
 @Setter
 @SuperBuilder
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServiceProviderProfileResponse {
     private String id;
 
@@ -64,7 +69,8 @@ public class ServiceProviderProfileResponse {
         return builder.build();
     }
 
-    public static ServiceProviderProfileResponse convert(ServiceProviderProfile serviceProviderProfile, int reviewCount) {
+    public static ServiceProviderProfileResponse convert(ServiceProviderProfile serviceProviderProfile,
+            int reviewCount) {
         Profile profile = serviceProviderProfile.getProfile();
         ServiceProviderProfileResponse.ServiceProviderProfileResponseBuilder<?, ?> builder = ServiceProviderProfileResponse
                 .builder()
