@@ -69,7 +69,9 @@ public class ProfileService {
         // Update Profile entity fields
         existingProfile.setGender(profileRequest.getGender());
         existingProfile.setAvatarUrl(profileRequest.getAvatarUrl());
-        existingProfile.setDob(LocalDate.parse(profileRequest.getDob()));
+        if (profileRequest.getDob() != null) {
+            existingProfile.setDob(LocalDate.parse(profileRequest.getDob()));
+        }
         existingProfile.setLocation(profileRequest.getLocation());
         existingProfile.setAbout(profileRequest.getAbout());
 
@@ -77,8 +79,6 @@ public class ProfileService {
         userRepository.save(user);
         profileRepository.save(existingProfile);
     }
-
-
 
     @Transactional
     public void createDefaultProfile(User user) {

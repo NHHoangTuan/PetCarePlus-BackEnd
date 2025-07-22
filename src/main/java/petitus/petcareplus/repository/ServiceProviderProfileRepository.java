@@ -1,5 +1,7 @@
 package petitus.petcareplus.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -43,4 +45,10 @@ public interface ServiceProviderProfileRepository
             "LEFT JOIN FETCH spp.imageUrls " +
             "WHERE p.user.id = :userId")
     Optional<ServiceProviderProfile> findByUserIdWithAllRelations(@Param("userId") UUID userId);
+
+    @Query(value = "SELECT DISTINCT spp FROM ServiceProviderProfile spp " +
+            "LEFT JOIN FETCH spp.profile p " +
+            "LEFT JOIN FETCH p.user u " +
+            "LEFT JOIN FETCH spp.imageUrls", countQuery = "SELECT COUNT(spp) FROM ServiceProviderProfile spp")
+    Page<ServiceProviderProfile> findAllWithAllRelations(Pageable pageable);
 }

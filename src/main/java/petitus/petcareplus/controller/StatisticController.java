@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/statistics")
 @RequiredArgsConstructor
-@Tag(name = "Provider Dashboard", description = "APIs cho provider dashboard")
+@Tag(name = "Statistics", description = "APIs cho thống kê")
 @SecurityRequirement(name = "bearerAuth")
 
 public class StatisticController {

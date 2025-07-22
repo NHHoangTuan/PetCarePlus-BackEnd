@@ -389,6 +389,9 @@ public class BookingService {
 
         // Update wallet balance
         Wallet providerWallet = walletService.getWalletByUserId(providerId);
+        if (providerWallet == null) {
+            throw new ResourceNotFoundException(messageSourceService.get("wallet_not_found"));
+        }
         providerWallet.setBalance(providerWallet.getBalance().add(providerEarning));
         walletService.updateWallet(providerWallet);
     }
