@@ -5,7 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import petitus.petcareplus.dto.request.profile.ServiceProviderProfileRequest;
+import petitus.petcareplus.dto.response.profile.ServiceProviderProfileResponse;
 import petitus.petcareplus.exceptions.DataExistedException;
+import petitus.petcareplus.exceptions.ResourceNotFoundException;
 import petitus.petcareplus.model.spec.ServiceProviderProfileFilterSpecification;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
 import petitus.petcareplus.model.spec.criteria.ServiceProviderProfileCriteria;
@@ -18,6 +20,7 @@ import petitus.petcareplus.repository.UserRepository;
 import petitus.petcareplus.utils.Constants;
 import petitus.petcareplus.utils.PageRequestBuilder;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -145,5 +148,35 @@ public class ServiceProviderProfileService {
 
         // Save the service provider profile
         serviceProviderProfileRepository.save(existingServiceProviderProfile);
+    }
+
+    @Transactional(readOnly = true)
+    public ServiceProviderProfileResponse getServiceProviderProfileResponse(UUID id) {
+        // ServiceProviderProfile serviceProviderProfile =
+        // serviceProviderProfileRepository.findById(id);
+        ServiceProviderProfile serviceProviderProfile = serviceProviderProfileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageSourceService.get("service_provider_profile_not_found")));
+        // if (serviceProviderProfile == null) {
+        // throw new
+        // RuntimeException(messageSourceService.get("service_provider_profile_not_found"));
+        // }
+        return mapToServiceProviderProfileResponse(serviceProviderProfile);
+    }
+
+    private ServiceProviderProfileResponse mapToServiceProviderProfileResponse(
+            ServiceProviderProfile serviceProviderProfile) {
+        return ServiceProviderProfileResponse.builder()
+                .id("")
+                .businessName(serviceProviderProfile.getBusinessName())
+                .businessBio(serviceProviderProfile.getBusinessBio())
+                .businessAddress(serviceProviderProfile.getBusinessAddress())
+                .contactEmail(serviceProviderProfile.getContactEmail())
+                .contactPhone(serviceProviderProfile.getContactPhone())
+                .availableTime(serviceProviderProfile.getAvailableTime())
+                .imageUrls(serviceProviderProfile.getImageUrls())
+                .createdAt(serviceProviderProfile.getCreatedAt())
+                .updatedAt(serviceProviderProfile.getUpdatedAt())
+                .build();
     }
 }

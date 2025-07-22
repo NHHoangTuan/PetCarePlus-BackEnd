@@ -157,4 +157,16 @@ public class ServiceProviderProfileController extends BaseController {
                 return ResponseEntity.ok(
                                 ServiceProviderProfileResponse.convert(serviceProviderProfile, reviewCount.intValue()));
         }
+
+        @Transactional(readOnly = true)
+        @GetMapping("/me2")
+        @Operation(tags = {
+                        "Service Provider Profile" }, summary = "Get my service provider profile", description = "API để lấy thông tin service provider profile của tôi")
+        public ResponseEntity<ServiceProviderProfileResponse> getMyServiceProviderProfile2(
+                        @PathVariable UUID serviceProviderProfileId) {
+                ServiceProviderProfileResponse response = serviceProviderProfileService
+                                .getServiceProviderProfileResponse(serviceProviderProfileId);
+
+                return ResponseEntity.ok(response);
+        }
 }
