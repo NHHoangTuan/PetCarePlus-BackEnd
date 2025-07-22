@@ -21,8 +21,6 @@ import petitus.petcareplus.repository.UserRepository;
 import petitus.petcareplus.utils.Constants;
 import petitus.petcareplus.utils.PageRequestBuilder;
 
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -156,78 +154,24 @@ public class ServiceProviderProfileService {
     public ServiceProviderProfileResponse getCurrentServiceProviderProfile() {
         UUID userId = userService.getCurrentUserId();
         log.info("Fetching service provider profile for user ID: {}", userId);
-
-        Profile profile = profileRepository.findByUserId(userId);
+        Profile profile = profileRepository.findByUserIdWithServiceProviderProfile(userId);
         if (profile == null) {
             log.warn("Profile not found for user ID: {}", userId);
             return null;
         }
-
+        // log profile details
         log.info("Profile found: {}, isServiceProvider: {}", profile.getId(), profile.isServiceProvider());
-
-        if (profile.isServiceProvider()) {
+        // log service provider profile details
+        if (profile != null && profile.isServiceProvider()) {
             ServiceProviderProfile serviceProviderProfile = profile.getServiceProviderProfile();
+            log.info("ServiceProviderProfile: {}", profile.getServiceProviderProfile().getId());
             if (serviceProviderProfile == null) {
                 throw new RuntimeException(messageSourceService.get("service_provider_profile_not_found"));
             }
-
-            log.info("ServiceProviderProfile: {}", serviceProviderProfile.getId());
-
-            // Force load all lazy properties WITHIN transaction
-            String businessName = serviceProviderProfile.getBusinessName();
-            String businessBio = serviceProviderProfile.getBusinessBio();
-            String businessAddress = serviceProviderProfile.getBusinessAddress();
-            String contactPhone = serviceProviderProfile.getContactPhone();
-            String contactEmail = serviceProviderProfile.getContactEmail();
-            Map<String, Object> availableTime = serviceProviderProfile.getAvailableTime();
-            Set<String> imageUrls = serviceProviderProfile.getImageUrls();
-            double rating = serviceProviderProfile.getRating();
-
             Long reviewCount = serviceReviewService.getProviderReviewCount(userId);
-            log.info("Review count for service provider profile: {}", reviewCount);
-
-            // Build response manually to avoid lazy loading during serialization
-            ServiceProviderProfileResponse response = ServiceProviderProfileResponse.builder()
-                    .profileId(profile.getId().toString())
-                    .id(serviceProviderProfile.getId().toString())
-                    .businessName(businessName)
-                    .businessBio(businessBio)
-                    .businessAddress(businessAddress)
-                    .contactPhone(contactPhone)
-                    .contactEmail(contactEmail)
-                    .availableTime(availableTime)
-                    .rating(rating)
-                    .reviews(reviewCount != null ? reviewCount.intValue() : 0)
-                    .imageUrls(imageUrls)
-                    .createdAt(profile.getCreatedAt())
-                    .updatedAt(profile.getUpdatedAt())
-                    .deletedAt(profile.getDeletedAt())
-                    .build();
-
-            log.info("Built ServiceProviderProfileResponse successfully");
-            return response;
+            return mapTServiceProviderProfileResponse(serviceProviderProfile, reviewCount.intValue());
         }
         return null;
-    }
-
-    private ServiceProviderProfileResponse mapTServiceProviderProfileResponse(
-            ServiceProviderProfile serviceProviderProfile) {
-        return ServiceProviderProfileResponse.builder()
-                .profileId(serviceProviderProfile.getProfile().getId().toString())
-                .id(serviceProviderProfile.getId().toString())
-                .businessName(serviceProviderProfile.getBusinessName())
-                .businessBio(serviceProviderProfile.getBusinessBio())
-                .businessAddress(serviceProviderProfile.getBusinessAddress())
-                .contactPhone(serviceProviderProfile.getContactPhone())
-                .contactEmail(serviceProviderProfile.getContactEmail())
-                .availableTime(serviceProviderProfile.getAvailableTime())
-                .rating(serviceProviderProfile.getRating())
-                .reviews(0) // Default to 0 reviews for backward compatibility
-                .imageUrls(serviceProviderProfile.getImageUrls())
-                .createdAt(serviceProviderProfile.getCreatedAt())
-                .updatedAt(serviceProviderProfile.getUpdatedAt())
-                .deletedAt(serviceProviderProfile.getDeletedAt())
-                .build();
     }
 
     private ServiceProviderProfileResponse mapTServiceProviderProfileResponse(
