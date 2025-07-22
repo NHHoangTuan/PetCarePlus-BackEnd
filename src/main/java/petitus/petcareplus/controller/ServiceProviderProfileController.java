@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import petitus.petcareplus.dto.request.profile.ServiceProviderProfileRequest;
 import petitus.petcareplus.dto.response.SuccessResponse;
@@ -59,6 +60,7 @@ public class ServiceProviderProfileController extends BaseController {
                                 .build());
         }
 
+        @Transactional(readOnly = true)
         @GetMapping
         @Operation(tags = {
                         "Service Provider Profile" }, summary = "Get all service provider profiles", description = "API để lấy danh sách tất cả service provider profile")
@@ -125,6 +127,7 @@ public class ServiceProviderProfileController extends BaseController {
                                                 .toList()));
         }
 
+        @Transactional(readOnly = true)
         @GetMapping("/{id}")
         @Operation(tags = {
                         "Service Provider Profile" }, summary = "Get service provider profile by ID", description = "API để lấy thông tin service provider profile theo ID")
@@ -139,6 +142,7 @@ public class ServiceProviderProfileController extends BaseController {
                                 ServiceProviderProfileResponse.convert(serviceProviderProfile, reviewCount.intValue()));
         }
 
+        @Transactional(readOnly = true)
         @GetMapping("/me")
         @Operation(tags = {
                         "Service Provider Profile" }, summary = "Get my service provider profile", description = "API để lấy thông tin service provider profile của tôi")

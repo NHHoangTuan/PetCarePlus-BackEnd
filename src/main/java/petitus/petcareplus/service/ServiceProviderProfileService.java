@@ -31,20 +31,24 @@ public class ServiceProviderProfileService {
     private final RoleService roleService;
     private final MessageSourceService messageSourceService;
 
+    @Transactional(readOnly = true)
     public Page<ServiceProviderProfile> findAll(ServiceProviderProfileCriteria criteria,
             PaginationCriteria paginationCriteria) {
         return serviceProviderProfileRepository.findAll(new ServiceProviderProfileFilterSpecification(criteria),
                 PageRequestBuilder.build(paginationCriteria));
     }
 
+    @Transactional(readOnly = true)
     public ServiceProviderProfile findById(UUID id) {
         return serviceProviderProfileRepository.findById(id).orElse(null);
     }
 
+    @Transactional(readOnly = true)
     public ServiceProviderProfile findByProfileId(UUID profileId) {
         return serviceProviderProfileRepository.findByProfileId(profileId);
     }
 
+    @Transactional(readOnly = true)
     public ServiceProviderProfile getMyServiceProviderProfile() {
         UUID userId = userService.getCurrentUserId();
         Profile profile = profileRepository.findByUserId(userId);
@@ -54,6 +58,7 @@ public class ServiceProviderProfileService {
         return null;
     }
 
+    @Transactional(readOnly = true)
     public boolean hasServiceProviderProfile() {
         UUID userId = userService.getCurrentUserId();
         Profile profile = profileRepository.findByUserId(userId);
