@@ -42,7 +42,9 @@ public class ServiceProviderProfileService {
 
     @Transactional(readOnly = true)
     public ServiceProviderProfile findById(UUID id) {
-        return serviceProviderProfileRepository.findById(id).orElse(null);
+        return serviceProviderProfileRepository.findByIdWithAllRelations(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageSourceService.get("service_provider_profile_not_found")));
     }
 
     @Transactional(readOnly = true)
@@ -53,11 +55,9 @@ public class ServiceProviderProfileService {
     @Transactional(readOnly = true)
     public ServiceProviderProfile getMyServiceProviderProfile() {
         UUID userId = userService.getCurrentUserId();
-        Profile profile = profileRepository.findByUserId(userId);
-        if (profile != null && profile.isServiceProvider()) {
-            return profile.getServiceProviderProfile();
-        }
-        return null;
+        return serviceProviderProfileRepository.findByUserIdWithAllRelations(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageSourceService.get("service_provider_profile_not_found")));
     }
 
     @Transactional(readOnly = true)
@@ -153,7 +153,7 @@ public class ServiceProviderProfileService {
     public ServiceProviderProfileResponse getServiceProviderProfileResponse(UUID id) {
         // ServiceProviderProfile serviceProviderProfile =
         // serviceProviderProfileRepository.findById(id);
-        ServiceProviderProfile serviceProviderProfile = serviceProviderProfileRepository.findById(id)
+        ServiceProviderProfile serviceProviderProfile = serviceProviderProfileRepository.findByIdWithAllRelations(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageSourceService.get("service_provider_profile_not_found")));
         // if (serviceProviderProfile == null) {

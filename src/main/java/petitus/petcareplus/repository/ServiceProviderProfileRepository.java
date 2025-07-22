@@ -24,4 +24,23 @@ public interface ServiceProviderProfileRepository
             "JOIN FETCH p.user u " +
             "WHERE spp.id = :id")
     Optional<ServiceProviderProfile> findByIdWithProfile(@Param("id") UUID id);
+
+    @Query("SELECT spp FROM ServiceProviderProfile spp " +
+            "LEFT JOIN FETCH spp.imageUrls " +
+            "WHERE spp.id = :id")
+    Optional<ServiceProviderProfile> findByIdWithImageUrls(@Param("id") UUID id);
+
+    @Query("SELECT spp FROM ServiceProviderProfile spp " +
+            "LEFT JOIN FETCH spp.profile p " +
+            "LEFT JOIN FETCH p.user u " +
+            "LEFT JOIN FETCH spp.imageUrls " +
+            "WHERE spp.id = :id")
+    Optional<ServiceProviderProfile> findByIdWithAllRelations(@Param("id") UUID id);
+
+    @Query("SELECT spp FROM ServiceProviderProfile spp " +
+            "LEFT JOIN FETCH spp.profile p " +
+            "LEFT JOIN FETCH p.user u " +
+            "LEFT JOIN FETCH spp.imageUrls " +
+            "WHERE p.user.id = :userId")
+    Optional<ServiceProviderProfile> findByUserIdWithAllRelations(@Param("userId") UUID userId);
 }
