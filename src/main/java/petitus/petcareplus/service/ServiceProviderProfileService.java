@@ -167,7 +167,7 @@ public class ServiceProviderProfileService {
     private ServiceProviderProfileResponse mapToServiceProviderProfileResponse(
             ServiceProviderProfile serviceProviderProfile) {
         return ServiceProviderProfileResponse.builder()
-                .id("")
+                .id(serviceProviderProfile.getId().toString())
                 .businessName(serviceProviderProfile.getBusinessName())
                 .businessBio(serviceProviderProfile.getBusinessBio())
                 .businessAddress(serviceProviderProfile.getBusinessAddress())
