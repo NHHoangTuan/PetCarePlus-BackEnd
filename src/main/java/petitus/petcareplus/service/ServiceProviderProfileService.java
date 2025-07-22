@@ -20,7 +20,6 @@ import petitus.petcareplus.repository.UserRepository;
 import petitus.petcareplus.utils.Constants;
 import petitus.petcareplus.utils.PageRequestBuilder;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -173,8 +172,6 @@ public class ServiceProviderProfileService {
                 .businessAddress(serviceProviderProfile.getBusinessAddress())
                 .contactEmail(serviceProviderProfile.getContactEmail())
                 .contactPhone(serviceProviderProfile.getContactPhone())
-                .availableTime(serviceProviderProfile.getAvailableTime())
-                .imageUrls(serviceProviderProfile.getImageUrls())
                 .createdAt(serviceProviderProfile.getCreatedAt())
                 .updatedAt(serviceProviderProfile.getUpdatedAt())
                 .build();

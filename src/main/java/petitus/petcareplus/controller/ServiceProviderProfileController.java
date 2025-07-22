@@ -21,7 +21,10 @@ import petitus.petcareplus.service.ServiceProviderProfileService;
 import petitus.petcareplus.service.ServiceReviewService;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -168,5 +171,80 @@ public class ServiceProviderProfileController extends BaseController {
                                 .getServiceProviderProfileResponse(serviceProviderProfileId);
 
                 return ResponseEntity.ok(response);
+        }
+
+        @GetMapping("/debug/{id}")
+        public ResponseEntity<Map<String, Object>> debugServiceProviderProfile(@PathVariable UUID id) {
+                try {
+                        ServiceProviderProfile spp = serviceProviderProfileService.findById(id);
+                        if (spp == null) {
+                                return ResponseEntity.notFound().build();
+                        }
+
+                        Map<String, Object> debug = new HashMap<>();
+
+                        // Test từng field một
+                        try {
+                                debug.put("id", spp.getId().toString());
+                        } catch (Exception e) {
+                                debug.put("id_error", e.getMessage());
+                        }
+
+                        try {
+                                debug.put("businessName", spp.getBusinessName());
+                        } catch (Exception e) {
+                                debug.put("businessName_error", e.getMessage());
+                        }
+
+                        try {
+                                debug.put("businessBio", spp.getBusinessBio());
+                        } catch (Exception e) {
+                                debug.put("businessBio_error", e.getMessage());
+                        }
+
+                        try {
+                                debug.put("contactPhone", spp.getContactPhone());
+                        } catch (Exception e) {
+                                debug.put("contactPhone_error", e.getMessage());
+                        }
+
+                        try {
+                                debug.put("contactEmail", spp.getContactEmail());
+                        } catch (Exception e) {
+                                debug.put("contactEmail_error", e.getMessage());
+                        }
+
+                        try {
+                                debug.put("rating", spp.getRating());
+                        } catch (Exception e) {
+                                debug.put("rating_error", e.getMessage());
+                        }
+
+                        // Test availableTime - có thể đây là culprit
+                        try {
+                                Map<String, Object> availableTime = spp.getAvailableTime();
+                                debug.put("availableTime_size", availableTime != null ? availableTime.size() : "null");
+                                debug.put("availableTime_keys",
+                                                availableTime != null ? availableTime.keySet() : "null");
+                        } catch (Exception e) {
+                                debug.put("availableTime_error", e.getMessage());
+                        }
+
+                        // Test imageUrls
+                        try {
+                                Set<String> imageUrls = spp.getImageUrls();
+                                debug.put("imageUrls_size", imageUrls != null ? imageUrls.size() : "null");
+                        } catch (Exception e) {
+                                debug.put("imageUrls_error", e.getMessage());
+                        }
+
+                        return ResponseEntity.ok(debug);
+
+                } catch (Exception e) {
+                        Map<String, Object> error = new HashMap<>();
+                        error.put("error", e.getMessage());
+                        error.put("stackTrace", e.getStackTrace()[0].toString());
+                        return ResponseEntity.ok(error);
+                }
         }
 }
