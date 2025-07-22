@@ -1,13 +1,10 @@
 package petitus.petcareplus.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import petitus.petcareplus.dto.request.profile.ServiceProviderProfileRequest;
-import petitus.petcareplus.dto.response.profile.ServiceProviderProfileResponse;
 import petitus.petcareplus.exceptions.DataExistedException;
 import petitus.petcareplus.model.spec.ServiceProviderProfileFilterSpecification;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
@@ -23,7 +20,6 @@ import petitus.petcareplus.utils.PageRequestBuilder;
 
 import java.util.UUID;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -34,9 +30,7 @@ public class ServiceProviderProfileService {
     private final UserService userService;
     private final RoleService roleService;
     private final MessageSourceService messageSourceService;
-    private final ServiceReviewService serviceReviewService;
 
-    @Transactional(readOnly = true)
     public Page<ServiceProviderProfile> findAll(ServiceProviderProfileCriteria criteria,
             PaginationCriteria paginationCriteria) {
         return serviceProviderProfileRepository.findAll(new ServiceProviderProfileFilterSpecification(criteria),
@@ -51,7 +45,6 @@ public class ServiceProviderProfileService {
         return serviceProviderProfileRepository.findByProfileId(profileId);
     }
 
-    @Transactional(readOnly = true)
     public ServiceProviderProfile getMyServiceProviderProfile() {
         UUID userId = userService.getCurrentUserId();
         Profile profile = profileRepository.findByUserId(userId);
@@ -61,7 +54,6 @@ public class ServiceProviderProfileService {
         return null;
     }
 
-    @Transactional(readOnly = true)
     public boolean hasServiceProviderProfile() {
         UUID userId = userService.getCurrentUserId();
         Profile profile = profileRepository.findByUserId(userId);
@@ -148,49 +140,5 @@ public class ServiceProviderProfileService {
 
         // Save the service provider profile
         serviceProviderProfileRepository.save(existingServiceProviderProfile);
-    }
-
-    @Transactional(readOnly = true)
-    public ServiceProviderProfileResponse getCurrentServiceProviderProfile() {
-        UUID userId = userService.getCurrentUserId();
-        log.info("Fetching service provider profile for user ID: {}", userId);
-        Profile profile = profileRepository.findByUserIdWithServiceProviderProfile(userId);
-        if (profile == null) {
-            log.warn("Profile not found for user ID: {}", userId);
-            return null;
-        }
-        // log profile details
-        log.info("Profile found: {}, isServiceProvider: {}", profile.getId(), profile.isServiceProvider());
-        // log service provider profile details
-        if (profile != null && profile.isServiceProvider()) {
-            ServiceProviderProfile serviceProviderProfile = profile.getServiceProviderProfile();
-            log.info("ServiceProviderProfile: {}", profile.getServiceProviderProfile().getId());
-            if (serviceProviderProfile == null) {
-                throw new RuntimeException(messageSourceService.get("service_provider_profile_not_found"));
-            }
-            Long reviewCount = serviceReviewService.getProviderReviewCount(userId);
-            return mapTServiceProviderProfileResponse(serviceProviderProfile, reviewCount.intValue());
-        }
-        return null;
-    }
-
-    private ServiceProviderProfileResponse mapTServiceProviderProfileResponse(
-            ServiceProviderProfile serviceProviderProfile, int reviewCount) {
-        return ServiceProviderProfileResponse.builder()
-                .profileId(serviceProviderProfile.getProfile().getId().toString())
-                .id(serviceProviderProfile.getId().toString())
-                .businessName(serviceProviderProfile.getBusinessName())
-                .businessBio(serviceProviderProfile.getBusinessBio())
-                .businessAddress(serviceProviderProfile.getBusinessAddress())
-                .contactPhone(serviceProviderProfile.getContactPhone())
-                .contactEmail(serviceProviderProfile.getContactEmail())
-                .availableTime(serviceProviderProfile.getAvailableTime())
-                .rating(serviceProviderProfile.getRating())
-                .reviews(reviewCount)
-                .imageUrls(serviceProviderProfile.getImageUrls())
-                .createdAt(serviceProviderProfile.getCreatedAt())
-                .updatedAt(serviceProviderProfile.getUpdatedAt())
-                .deletedAt(serviceProviderProfile.getDeletedAt())
-                .build();
     }
 }

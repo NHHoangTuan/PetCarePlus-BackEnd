@@ -10,14 +10,9 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 @Getter
 @Setter
 @SuperBuilder
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServiceProviderProfileResponse {
     private String id;
 
