@@ -1,6 +1,8 @@
 package petitus.petcareplus.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ import petitus.petcareplus.utils.PageRequestBuilder;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -150,7 +153,16 @@ public class ServiceProviderProfileService {
     @Transactional(readOnly = true)
     public ServiceProviderProfileResponse getCurrentServiceProviderProfile() {
         UUID userId = userService.getCurrentUserId();
+        log.info("Fetching service provider profile for user ID: {}", userId);
         Profile profile = profileRepository.findByUserId(userId);
+        if (profile == null) {
+            log.warn("Profile not found for user ID: {}", userId);
+            return null;
+        }
+        // log profile details
+        log.info("Profile found: {}, isServiceProvider: {}", profile.getId(), profile.isServiceProvider());
+        // log service provider profile details
+        log.info("ServiceProviderProfile: {}", profile.getServiceProviderProfile());
         if (profile != null && profile.isServiceProvider()) {
             ServiceProviderProfile serviceProviderProfile = profile.getServiceProviderProfile();
             if (serviceProviderProfile == null) {
