@@ -57,15 +57,13 @@ public class PaymentController {
     // return response;
     // }
 
-    // @GetMapping("/booking/{bookingId}")
-    // @PreAuthorize("isAuthenticated()")
-    // @Operation(summary = "Get booking payments", description = "Get all payments
-    // for a booking")
-    // public ResponseEntity<List<PaymentResponse>> getBookingPayments(
-    // @AuthenticationPrincipal JwtUserDetails userDetails,
-    // @PathVariable UUID bookingId) {
-    // List<PaymentResponse> payments =
-    // paymentService.getBookingPayments(userDetails.getId(), bookingId);
-    // return ResponseEntity.ok(payments);
-    // }
+    @GetMapping("/booking/{bookingId}")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get booking payments", description = "Get all payments for a booking")
+    public ResponseEntity<List<PaymentResponse>> getBookingPayments(
+            @AuthenticationPrincipal JwtUserDetails userDetails,
+            @PathVariable UUID bookingId) {
+        List<PaymentResponse> payments = paymentService.getBookingPayments(userDetails.getId(), bookingId);
+        return ResponseEntity.ok(payments);
+    }
 }

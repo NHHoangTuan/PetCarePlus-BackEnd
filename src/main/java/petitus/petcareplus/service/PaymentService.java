@@ -335,41 +335,38 @@ public class PaymentService {
 
     // }
 
-    // public List<PaymentResponse> getBookingPayments(UUID userId, UUID bookingId)
-    // {
-    // // Validate booking
-    // Booking booking = bookingRepository.findById(bookingId)
-    // .orElseThrow(() -> new
-    // ResourceNotFoundException(messageSourceService.get("booking_not_found")));
+    public List<PaymentResponse> getBookingPayments(UUID userId, UUID bookingId) {
+        // Validate booking
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException(messageSourceService.get("booking_not_found")));
 
-    // // Ensure booking belongs to user or provider
-    // if (!booking.getUser().getId().equals(userId) &&
-    // !booking.getProvider().getId().equals(userId)) {
-    // throw new
-    // BadRequestException(messageSourceService.get("not_authorized_for_booking"));
-    // }
+        // Ensure booking belongs to user or provider
+        if (!booking.getUser().getId().equals(userId) &&
+                !booking.getProvider().getId().equals(userId)) {
+            throw new BadRequestException(messageSourceService.get("not_authorized_for_booking"));
+        }
 
-    // // Find all payments for booking
-    // List<Payment> payments = paymentRepository.findByBookingId(bookingId);
+        // Find all payments for booking
+        List<Payment> payments = paymentRepository.findByBookingId(bookingId);
 
-    // return payments.stream()
-    // .map(this::mapToPaymentResponse)
-    // .toList();
-    // }
+        return payments.stream()
+                .map(this::mapToPaymentResponse)
+                .toList();
+    }
 
-    // private PaymentResponse mapToPaymentResponse(Payment payment) {
-    // return PaymentResponse.builder()
-    // .id(payment.getId())
-    // .bookingId(payment.getBooking().getId())
-    // .amount(payment.getAmount())
-    // .paymentMethod(payment.getPaymentMethod())
-    // .status(payment.getStatus())
-    // .gatewayData(payment.getGatewayData())
-    // .orderCode(payment.getOrderCode())
-    // .paymentDate(payment.getPaymentDate())
-    // .createdAt(payment.getCreatedAt())
-    // .updatedAt(payment.getUpdatedAt())
-    // .build();
-    // }
+    private PaymentResponse mapToPaymentResponse(Payment payment) {
+        return PaymentResponse.builder()
+                .id(payment.getId())
+                .bookingId(payment.getBooking().getId())
+                .amount(payment.getAmount())
+                .paymentMethod(payment.getPaymentMethod())
+                .status(payment.getStatus())
+                .gatewayData(payment.getGatewayData())
+                .orderCode(payment.getOrderCode())
+                .paymentDate(payment.getPaymentDate())
+                .createdAt(payment.getCreatedAt())
+                .updatedAt(payment.getUpdatedAt())
+                .build();
+    }
 
 }
