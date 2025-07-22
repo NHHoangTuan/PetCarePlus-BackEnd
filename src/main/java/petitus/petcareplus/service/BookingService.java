@@ -425,6 +425,7 @@ public class BookingService {
                 .providerServiceId(booking.getProviderService().getId())
                 .userId(booking.getUser().getId())
                 .userName(booking.getUser().getFullName())
+                .userAvatar(booking.getUser().getProfile().getAvatarUrl())
                 .providerId(booking.getProvider().getId())
                 .providerName(booking.getProvider().getFullName())
                 .status(booking.getStatus().name())
