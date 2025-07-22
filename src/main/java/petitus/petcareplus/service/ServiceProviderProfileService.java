@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import petitus.petcareplus.dto.request.profile.ServiceProviderProfileRequest;
+import petitus.petcareplus.dto.response.profile.ServiceProviderProfileResponse;
 import petitus.petcareplus.exceptions.DataExistedException;
 import petitus.petcareplus.model.spec.ServiceProviderProfileFilterSpecification;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
@@ -30,6 +31,7 @@ public class ServiceProviderProfileService {
     private final UserService userService;
     private final RoleService roleService;
     private final MessageSourceService messageSourceService;
+    private final ServiceReviewService serviceReviewService;
 
     @Transactional(readOnly = true)
     public Page<ServiceProviderProfile> findAll(ServiceProviderProfileCriteria criteria,
@@ -143,5 +145,60 @@ public class ServiceProviderProfileService {
 
         // Save the service provider profile
         serviceProviderProfileRepository.save(existingServiceProviderProfile);
+    }
+
+    @Transactional(readOnly = true)
+    public ServiceProviderProfileResponse getCurrentServiceProviderProfile() {
+        UUID userId = userService.getCurrentUserId();
+        Profile profile = profileRepository.findByUserId(userId);
+        if (profile != null && profile.isServiceProvider()) {
+            ServiceProviderProfile serviceProviderProfile = profile.getServiceProviderProfile();
+            if (serviceProviderProfile == null) {
+                throw new RuntimeException(messageSourceService.get("service_provider_profile_not_found"));
+            }
+            Long reviewCount = serviceReviewService.getProviderReviewCount(userId);
+            return mapTServiceProviderProfileResponse(serviceProviderProfile, reviewCount.intValue());
+        }
+        return null;
+    }
+
+    private ServiceProviderProfileResponse mapTServiceProviderProfileResponse(
+            ServiceProviderProfile serviceProviderProfile) {
+        return ServiceProviderProfileResponse.builder()
+                .profileId(serviceProviderProfile.getProfile().getId().toString())
+                .id(serviceProviderProfile.getId().toString())
+                .businessName(serviceProviderProfile.getBusinessName())
+                .businessBio(serviceProviderProfile.getBusinessBio())
+                .businessAddress(serviceProviderProfile.getBusinessAddress())
+                .contactPhone(serviceProviderProfile.getContactPhone())
+                .contactEmail(serviceProviderProfile.getContactEmail())
+                .availableTime(serviceProviderProfile.getAvailableTime())
+                .rating(serviceProviderProfile.getRating())
+                .reviews(0) // Default to 0 reviews for backward compatibility
+                .imageUrls(serviceProviderProfile.getImageUrls())
+                .createdAt(serviceProviderProfile.getCreatedAt())
+                .updatedAt(serviceProviderProfile.getUpdatedAt())
+                .deletedAt(serviceProviderProfile.getDeletedAt())
+                .build();
+    }
+
+    private ServiceProviderProfileResponse mapTServiceProviderProfileResponse(
+            ServiceProviderProfile serviceProviderProfile, int reviewCount) {
+        return ServiceProviderProfileResponse.builder()
+                .profileId(serviceProviderProfile.getProfile().getId().toString())
+                .id(serviceProviderProfile.getId().toString())
+                .businessName(serviceProviderProfile.getBusinessName())
+                .businessBio(serviceProviderProfile.getBusinessBio())
+                .businessAddress(serviceProviderProfile.getBusinessAddress())
+                .contactPhone(serviceProviderProfile.getContactPhone())
+                .contactEmail(serviceProviderProfile.getContactEmail())
+                .availableTime(serviceProviderProfile.getAvailableTime())
+                .rating(serviceProviderProfile.getRating())
+                .reviews(reviewCount)
+                .imageUrls(serviceProviderProfile.getImageUrls())
+                .createdAt(serviceProviderProfile.getCreatedAt())
+                .updatedAt(serviceProviderProfile.getUpdatedAt())
+                .deletedAt(serviceProviderProfile.getDeletedAt())
+                .build();
     }
 }

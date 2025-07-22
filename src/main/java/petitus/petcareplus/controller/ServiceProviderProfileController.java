@@ -146,33 +146,44 @@ public class ServiceProviderProfileController extends BaseController {
                                 ServiceProviderProfileResponse.convert(serviceProviderProfile, reviewCount.intValue()));
         }
 
-        @Transactional(readOnly = true)
+        // @Transactional(readOnly = true)
+        // @GetMapping("/me")
+        // @Operation(tags = {
+        // "Service Provider Profile" }, summary = "Get my service provider profile",
+        // description = "API để lấy thông tin service provider profile của tôi")
+        // public ResponseEntity<ServiceProviderProfileResponse>
+        // getMyServiceProviderProfile() {
+        // try {
+        // ServiceProviderProfile serviceProviderProfile = serviceProviderProfileService
+        // .getMyServiceProviderProfile();
+        // if (serviceProviderProfile == null) {
+        // throw new RuntimeException(
+        // messageSourceService.get("service_provider_profile_not_found"));
+        // }
+        // // Force initialize lazy properties
+        // Hibernate.initialize(serviceProviderProfile.getProfile());
+        // if (serviceProviderProfile.getProfile() != null) {
+        // Hibernate.initialize(serviceProviderProfile.getProfile().getUser());
+        // }
+        // UUID providerId = serviceProviderProfile.getProfile().getUser().getId();
+
+        // Long reviewCount = serviceReviewService.getProviderReviewCount(providerId);
+
+        // return ResponseEntity.ok(
+        // ServiceProviderProfileResponse.convert(serviceProviderProfile,
+        // reviewCount.intValue()));
+        // } catch (Exception e) {
+        // log.error("Error in /me endpoint", e);
+        // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        // }
+        // }
+
         @GetMapping("/me")
         @Operation(tags = {
                         "Service Provider Profile" }, summary = "Get my service provider profile", description = "API để lấy thông tin service provider profile của tôi")
         public ResponseEntity<ServiceProviderProfileResponse> getMyServiceProviderProfile() {
-                try {
-                        ServiceProviderProfile serviceProviderProfile = serviceProviderProfileService
-                                        .getMyServiceProviderProfile();
-                        if (serviceProviderProfile == null) {
-                                throw new RuntimeException(
-                                                messageSourceService.get("service_provider_profile_not_found"));
-                        }
-                        // Force initialize lazy properties
-                        Hibernate.initialize(serviceProviderProfile.getProfile());
-                        if (serviceProviderProfile.getProfile() != null) {
-                                Hibernate.initialize(serviceProviderProfile.getProfile().getUser());
-                        }
-                        UUID providerId = serviceProviderProfile.getProfile().getUser().getId();
-
-                        Long reviewCount = serviceReviewService.getProviderReviewCount(providerId);
-
-                        return ResponseEntity.ok(
-                                        ServiceProviderProfileResponse.convert(serviceProviderProfile,
-                                                        reviewCount.intValue()));
-                } catch (Exception e) {
-                        log.error("Error in /me endpoint", e);
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-                }
+                ServiceProviderProfileResponse response = serviceProviderProfileService
+                                .getCurrentServiceProviderProfile();
+                return ResponseEntity.ok(response);
         }
 }
