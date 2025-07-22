@@ -162,14 +162,19 @@ public class ServiceProviderProfileService {
         // log profile details
         log.info("Profile found: {}, isServiceProvider: {}", profile.getId(), profile.isServiceProvider());
         // log service provider profile details
-        log.info("ServiceProviderProfile: {}", profile.getServiceProviderProfile().getId());
         if (profile != null && profile.isServiceProvider()) {
             ServiceProviderProfile serviceProviderProfile = profile.getServiceProviderProfile();
+            log.info("ServiceProviderProfile: {}", profile.getServiceProviderProfile().getId());
             if (serviceProviderProfile == null) {
                 throw new RuntimeException(messageSourceService.get("service_provider_profile_not_found"));
             }
             Long reviewCount = serviceReviewService.getProviderReviewCount(userId);
-            return mapTServiceProviderProfileResponse(serviceProviderProfile, reviewCount.intValue());
+            log.info("Review count for service provider profile: {}", reviewCount);
+            // Map to response DTO
+            ServiceProviderProfileResponse serviceProviderProfileResponse = mapTServiceProviderProfileResponse(
+                    serviceProviderProfile, reviewCount.intValue());
+            log.info("Mapped ServiceProviderProfileResponse: {}", serviceProviderProfileResponse);
+            return serviceProviderProfileResponse;
         }
         return null;
     }
