@@ -18,6 +18,7 @@ import petitus.petcareplus.dto.response.chat.ChatMessageResponse;
 import petitus.petcareplus.dto.response.chat.ConversationResponse;
 import petitus.petcareplus.service.ChatService;
 import petitus.petcareplus.service.FcmTokenService;
+import petitus.petcareplus.service.OnlineUserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +32,7 @@ public class ChatController {
 
     private final ChatService chatService;
     private final FcmTokenService fcmTokenService;
+    private final OnlineUserService onlineUserService;
 
     @PostMapping("/messages")
     @Operation(summary = "Send a chat message", description = "Send a chat message to another user", security = @SecurityRequirement(name = "bearerAuth"))
@@ -89,5 +91,13 @@ public class ChatController {
 
         fcmTokenService.saveToken(request.getToken());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/online/{userId}")
+    @Operation(summary = "Check if user is online", description = "Returns true if the user is online, false otherwise", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<Boolean> isUserOnline(
+            @Parameter(description = "User ID to check") @PathVariable String userId) {
+        boolean online = onlineUserService.isUserOnline(userId);
+        return ResponseEntity.ok(online);
     }
 } 
