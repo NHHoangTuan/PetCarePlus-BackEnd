@@ -29,140 +29,148 @@ import java.util.UUID;
 @SecurityRequirement(name = "bearerAuth")
 public class ServiceReviewController {
 
-    private final ServiceReviewService serviceReviewService;
+        private final ServiceReviewService serviceReviewService;
 
-    @PostMapping
-    @PreAuthorize("hasAuthority('USER')")
-    @Operation(summary = "Create a new review", description = "Create a review for a completed service")
-    public ResponseEntity<ServiceReviewResponse> createReview(
-            @Valid @RequestBody ServiceReviewRequest request) {
+        @PostMapping
+        @PreAuthorize("hasAuthority('USER')")
+        @Operation(summary = "Create a new review", description = "Create a review for a completed service")
+        public ResponseEntity<ServiceReviewResponse> createReview(
+                        @Valid @RequestBody ServiceReviewRequest request) {
 
-        ServiceReviewResponse response = serviceReviewService.createReview(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
+                ServiceReviewResponse response = serviceReviewService.createReview(request);
+                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
 
-    @GetMapping("/{reviewId}")
-    @Operation(summary = "Get review details", description = "Get details of a specific review")
-    public ResponseEntity<ServiceReviewResponse> getReview(@PathVariable UUID reviewId) {
-        ServiceReviewResponse response = serviceReviewService.getReview(reviewId);
-        return ResponseEntity.ok(response);
-    }
+        @GetMapping("/{reviewId}")
+        @Operation(summary = "Get review details", description = "Get details of a specific review")
+        public ResponseEntity<ServiceReviewResponse> getReview(@PathVariable UUID reviewId) {
+                ServiceReviewResponse response = serviceReviewService.getReview(reviewId);
+                return ResponseEntity.ok(response);
+        }
 
-    @PatchMapping("/{reviewId}")
-    @PreAuthorize("hasAuthority('USER')")
-    @Operation(summary = "Update a review", description = "Update an existing review")
-    public ResponseEntity<ServiceReviewResponse> updateReview(
-            @PathVariable UUID reviewId,
-            @Valid @RequestBody ServiceReviewUpdateRequest request) {
+        @PatchMapping("/{reviewId}")
+        @PreAuthorize("hasAuthority('USER')")
+        @Operation(summary = "Update a review", description = "Update an existing review")
+        public ResponseEntity<ServiceReviewResponse> updateReview(
+                        @PathVariable UUID reviewId,
+                        @Valid @RequestBody ServiceReviewUpdateRequest request) {
 
-        ServiceReviewResponse response = serviceReviewService.updateReview(reviewId, request);
-        return ResponseEntity.ok(response);
-    }
+                ServiceReviewResponse response = serviceReviewService.updateReview(reviewId, request);
+                return ResponseEntity.ok(response);
+        }
 
-    @DeleteMapping("/{reviewId}")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    @Operation(summary = "Delete a review", description = "Soft-delete a review")
-    public ResponseEntity<Void> deleteReview(
-            @PathVariable UUID reviewId) {
+        @DeleteMapping("/{reviewId}")
+        @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+        @Operation(summary = "Delete a review", description = "Soft-delete a review")
+        public ResponseEntity<Void> deleteReview(
+                        @PathVariable UUID reviewId) {
 
-        serviceReviewService.deleteReview(reviewId);
-        return ResponseEntity.noContent().build();
-    }
+                serviceReviewService.deleteReview(reviewId);
+                return ResponseEntity.noContent().build();
+        }
 
-    @GetMapping("/me")
-    @PreAuthorize("hasAuthority('USER')")
-    @Operation(summary = "Get current user's reviews", description = "Get all reviews created by the current user")
-    public ResponseEntity<StandardPaginationResponse<ServiceReviewResponse>> getUserReviews(
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(defaultValue = "asc") String sort) {
+        @GetMapping("/me")
+        @PreAuthorize("hasAuthority('USER')")
+        @Operation(summary = "Get current user's reviews", description = "Get all reviews created by the current user")
+        public ResponseEntity<StandardPaginationResponse<ServiceReviewResponse>> getUserReviews(
+                        @RequestParam(defaultValue = "1") Integer page,
+                        @RequestParam(defaultValue = "10") Integer size,
+                        @RequestParam(required = false) String sortBy,
+                        @RequestParam(defaultValue = "asc") String sort) {
 
-        PaginationCriteria pagination = PaginationCriteria.builder()
-                .page(page)
-                .size(size)
-                .sortBy(sortBy)
-                .sort(sort)
-                .columns(new String[] { "rating", "createdAt", "updatedAt" })
-                .build();
+                PaginationCriteria pagination = PaginationCriteria.builder()
+                                .page(page)
+                                .size(size)
+                                .sortBy(sortBy)
+                                .sort(sort)
+                                .columns(new String[] { "rating", "createdAt", "updatedAt" })
+                                .build();
 
-        Page<ServiceReviewResponse> reviews = serviceReviewService.getUserReviews(pagination);
-        StandardPaginationResponse<ServiceReviewResponse> response = new StandardPaginationResponse<>(
-                reviews,
-                reviews.getContent());
-        return ResponseEntity.ok(response);
-    }
+                Page<ServiceReviewResponse> reviews = serviceReviewService.getUserReviews(pagination);
+                StandardPaginationResponse<ServiceReviewResponse> response = new StandardPaginationResponse<>(
+                                reviews,
+                                reviews.getContent());
+                return ResponseEntity.ok(response);
+        }
 
-    @GetMapping("/provider-services/{providerServiceId}")
-    @Operation(summary = "Get reviews for a provider service", description = "Get reviews for a specific provider service")
-    public ResponseEntity<StandardPaginationResponse<ServiceReviewResponse>> getProviderServiceReviews(
-            @PathVariable UUID providerServiceId,
+        @GetMapping("/provider-services/{providerServiceId}")
+        @Operation(summary = "Get reviews for a provider service", description = "Get reviews for a specific provider service")
+        public ResponseEntity<StandardPaginationResponse<ServiceReviewResponse>> getProviderServiceReviews(
+                        @PathVariable UUID providerServiceId,
 
-            @RequestParam(required = false) Integer rating,
-            @RequestParam(required = false) Integer minRating,
-            @RequestParam(required = false) Integer maxRating,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAtStart,
-            @RequestParam(required = false) Boolean hasComment,
+                        @RequestParam(required = false) Integer rating,
+                        @RequestParam(required = false) Integer minRating,
+                        @RequestParam(required = false) Integer maxRating,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAtStart,
+                        @RequestParam(required = false) Boolean hasComment,
 
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(defaultValue = "asc") String sort) {
+                        @RequestParam(defaultValue = "1") Integer page,
+                        @RequestParam(defaultValue = "10") Integer size,
+                        @RequestParam(required = false) String sortBy,
+                        @RequestParam(defaultValue = "asc") String sort) {
 
-        ServiceReviewCriteria criteria = ServiceReviewCriteria.builder()
-                .rating(rating)
-                .providerServiceId(providerServiceId)
-                .minRating(minRating)
-                .maxRating(maxRating)
-                .createdAtStart(createdAtStart)
-                .hasComment(hasComment)
-                .build();
+                ServiceReviewCriteria criteria = ServiceReviewCriteria.builder()
+                                .rating(rating)
+                                .providerServiceId(providerServiceId)
+                                .minRating(minRating)
+                                .maxRating(maxRating)
+                                .createdAtStart(createdAtStart)
+                                .hasComment(hasComment)
+                                .build();
 
-        PaginationCriteria pagination = PaginationCriteria.builder()
-                .page(page)
-                .size(size)
-                .sortBy(sortBy)
-                .sort(sort)
-                .columns(new String[] { "rating", "createdAt", "updatedAt" })
-                .build();
+                PaginationCriteria pagination = PaginationCriteria.builder()
+                                .page(page)
+                                .size(size)
+                                .sortBy(sortBy)
+                                .sort(sort)
+                                .columns(new String[] { "rating", "createdAt", "updatedAt" })
+                                .build();
 
-        Page<ServiceReviewResponse> pageResult = serviceReviewService.getServiceReviews(providerServiceId, criteria,
-                pagination);
+                Page<ServiceReviewResponse> pageResult = serviceReviewService.getServiceReviews(providerServiceId,
+                                criteria,
+                                pagination);
 
-        StandardPaginationResponse<ServiceReviewResponse> response = new StandardPaginationResponse<>(
-                pageResult,
-                pageResult.getContent());
+                StandardPaginationResponse<ServiceReviewResponse> response = new StandardPaginationResponse<>(
+                                pageResult,
+                                pageResult.getContent());
 
-        return ResponseEntity.ok(response);
-    }
+                return ResponseEntity.ok(response);
+        }
 
-    // @GetMapping("/provider/{providerId}")
-    // @Operation(summary = "Get provider reviews", description = "Get all reviews
-    // for a specific service provider")
-    // public ResponseEntity<Page<ServiceReviewResponse>> getProviderReviews(
-    // @PathVariable UUID providerId,
-    // @RequestParam(defaultValue = "1") Integer page,
-    // @RequestParam(defaultValue = "10") Integer size,
-    // @RequestParam(required = false) String sortBy,
-    // @RequestParam(defaultValue = "asc") String sort) {
+        // @GetMapping("/provider/{providerId}")
+        // @Operation(summary = "Get provider reviews", description = "Get all reviews
+        // for a specific service provider")
+        // public ResponseEntity<Page<ServiceReviewResponse>> getProviderReviews(
+        // @PathVariable UUID providerId,
+        // @RequestParam(defaultValue = "1") Integer page,
+        // @RequestParam(defaultValue = "10") Integer size,
+        // @RequestParam(required = false) String sortBy,
+        // @RequestParam(defaultValue = "asc") String sort) {
 
-    // PaginationCriteria pagination = PaginationCriteria.builder()
-    // .page(page)
-    // .size(size)
-    // .sortBy(sortBy)
-    // .sort(sort)
-    // .columns(new String[] { "rating", "createdAt", "updatedAt" })
-    // .build();
+        // PaginationCriteria pagination = PaginationCriteria.builder()
+        // .page(page)
+        // .size(size)
+        // .sortBy(sortBy)
+        // .sort(sort)
+        // .columns(new String[] { "rating", "createdAt", "updatedAt" })
+        // .build();
 
-    // Page<ServiceReviewResponse> reviews =
-    // serviceReviewService.getProviderReviews(providerId, pagination);
-    // return ResponseEntity.ok(reviews);
-    // }
+        // Page<ServiceReviewResponse> reviews =
+        // serviceReviewService.getProviderReviews(providerId, pagination);
+        // return ResponseEntity.ok(reviews);
+        // }
 
-    @GetMapping("/provider/{providerId}/rating")
-    @Operation(summary = "Get provider average rating", description = "Get the average rating for a service provider")
-    public ResponseEntity<Double> getProviderAverageRating(@PathVariable UUID providerId) {
-        Double averageRating = serviceReviewService.getProviderAverageRating(providerId);
-        return ResponseEntity.ok(averageRating);
-    }
+        @GetMapping("/provider/{providerId}/rating")
+        @Operation(summary = "Get provider average rating", description = "Get the average rating for a service provider")
+        public ResponseEntity<Double> getProviderAverageRating(@PathVariable UUID providerId) {
+                Double averageRating = serviceReviewService.getProviderAverageRating(providerId);
+                return ResponseEntity.ok(averageRating);
+        }
+
+        @GetMapping("/check-review/{providerServiceId}")
+        @Operation(summary = "Check if user has reviewed a provider service", description = "Check if the current user has reviewed a specific provider service")
+        public ResponseEntity<Boolean> checkUserReviewedProviderService(@PathVariable UUID providerServiceId) {
+                Boolean hasReviewed = serviceReviewService.hasUserReviewedProviderService(providerServiceId);
+                return ResponseEntity.ok(hasReviewed);
+        }
 }

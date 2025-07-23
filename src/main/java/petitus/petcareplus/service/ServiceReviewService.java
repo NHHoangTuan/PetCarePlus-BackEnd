@@ -252,6 +252,11 @@ public class ServiceReviewService {
         }
     }
 
+    public Boolean hasUserReviewedProviderService(UUID providerServiceId) {
+        UUID userId = userService.getCurrentUserId();
+        return serviceReviewRepository.hasUserReviewedProviderService(userId, providerServiceId);
+    }
+
     private ServiceReviewResponse mapToServiceReviewResponse(ServiceReview review) {
         return ServiceReviewResponse.builder()
                 .id(review.getId())
