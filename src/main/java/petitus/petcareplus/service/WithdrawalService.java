@@ -251,6 +251,7 @@ public class WithdrawalService {
                 .fee(withdrawal.getFee())
                 .netAmount(withdrawal.getNetAmount())
                 .status(withdrawal.getStatus())
+                .bankCode(withdrawal.getBankCode())
                 .bankName(withdrawal.getBankName())
                 .accountNumber(withdrawal.getAccountNumber())
                 .accountHolderName(withdrawal.getAccountHolderName())

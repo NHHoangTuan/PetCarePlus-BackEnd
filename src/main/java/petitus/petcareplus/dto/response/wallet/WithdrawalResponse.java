@@ -17,6 +17,7 @@ public class WithdrawalResponse {
     private BigDecimal fee;
     private BigDecimal netAmount;
     private WithdrawalStatus status;
+    private String bankCode;
     private String bankName;
     private String accountNumber;
     private String accountHolderName;
