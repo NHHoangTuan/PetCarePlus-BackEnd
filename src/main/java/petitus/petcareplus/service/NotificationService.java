@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import petitus.petcareplus.dto.request.notification.NotificationRequest;
@@ -11,6 +12,8 @@ import petitus.petcareplus.dto.response.notification.AdminNotificationResponse;
 import petitus.petcareplus.dto.response.notification.NotificationResponse;
 import petitus.petcareplus.exceptions.ResourceNotFoundException;
 import petitus.petcareplus.model.Notification;
+import petitus.petcareplus.model.spec.NotificationSpecification;
+import petitus.petcareplus.model.spec.criteria.NotificationCriteria;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
 import petitus.petcareplus.repository.NotificationRepository;
 import petitus.petcareplus.utils.PageRequestBuilder;
@@ -125,10 +128,12 @@ public class NotificationService {
                 .build();
     }
 
-    public Page<AdminNotificationResponse> getAllNotificationsForAdmin(PaginationCriteria pagination) {
+    public Page<AdminNotificationResponse> getAllNotificationsForAdmin(PaginationCriteria pagination,
+            NotificationCriteria criteria) {
 
+        Specification<Notification> specification = new NotificationSpecification(criteria);
         PageRequest pageRequest = PageRequestBuilder.build(pagination);
-        Page<Notification> bookings = notificationRepository.findByDeletedAtIsNull(pageRequest);
+        Page<Notification> bookings = notificationRepository.findAll(specification, pageRequest);
 
         return bookings.map(this::mapToAdminBookingResponse);
     }

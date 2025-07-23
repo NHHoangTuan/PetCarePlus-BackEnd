@@ -17,8 +17,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import petitus.petcareplus.dto.response.StandardPaginationResponse;
 import petitus.petcareplus.dto.response.notification.AdminNotificationResponse;
+import petitus.petcareplus.model.spec.criteria.NotificationCriteria;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
 import petitus.petcareplus.service.NotificationService;
+import petitus.petcareplus.utils.enums.Notifications;
 
 @RestController
 @RequestMapping("/admin/notifications")
@@ -33,10 +35,21 @@ public class AdminNotificationController {
     @Operation(summary = "Get all notifications with pagination")
     public ResponseEntity<StandardPaginationResponse<AdminNotificationResponse>> getAllNotifications(
 
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) Notifications notificationType,
+            @RequestParam(required = false) Boolean isDeleted,
+
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) String sortBy,
             @RequestParam(defaultValue = "asc") String sort) {
+
+        // Build criteria for filtering and pagination
+        NotificationCriteria criteria = NotificationCriteria.builder()
+                .query(query) // Search by notification title
+                .notificationType(notificationType) // Filter by notification type
+                .isDeleted(isDeleted) // Filter by deleted status (for admin)
+                .build();
 
         PaginationCriteria pagination = PaginationCriteria.builder()
                 .page(page)
@@ -49,7 +62,8 @@ public class AdminNotificationController {
                 .build();
 
         // Lấy Page từ service
-        Page<AdminNotificationResponse> pageResult = notificationService.getAllNotificationsForAdmin(pagination);
+        Page<AdminNotificationResponse> pageResult = notificationService.getAllNotificationsForAdmin(pagination,
+                criteria);
 
         // Convert sang PaginationResponse
         StandardPaginationResponse<AdminNotificationResponse> response = new StandardPaginationResponse<>(
