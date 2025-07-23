@@ -1,5 +1,7 @@
 package petitus.petcareplus.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -44,4 +46,12 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
         @Query(value = "SELECT * FROM payments p WHERE p.order_code = :orderCode OR " +
                         "(p.gateway_data IS NOT NULL AND p.gateway_data::jsonb ->> 'order_code' = :orderCode)", nativeQuery = true)
         Optional<Payment> findByPayOSOrderCode(@Param("orderCode") String orderCode);
+
+        // Find by booking user ID
+        @Query("SELECT p FROM Payment p WHERE p.booking.user.id = :userId ORDER BY p.createdAt DESC")
+        Page<Payment> findByBookingUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
+
+        // Find by booking user ID without pagination
+        @Query("SELECT p FROM Payment p WHERE p.booking.user.id = :userId ORDER BY p.createdAt DESC")
+        List<Payment> findByBookingUserId(UUID userId);
 }
