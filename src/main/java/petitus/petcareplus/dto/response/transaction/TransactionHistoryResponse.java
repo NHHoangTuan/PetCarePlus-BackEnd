@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import petitus.petcareplus.dto.response.booking.BookingResponse;
 import petitus.petcareplus.utils.enums.TransactionCategory;
 import petitus.petcareplus.utils.enums.TransactionType;
 
@@ -25,7 +26,7 @@ public class TransactionHistoryResponse {
     private LocalDateTime transactionDate;
 
     // Thông tin bổ sung
-    private UUID bookingId;
+    private BookingResponse booking;
     private String paymentMethod; // Chỉ cho Payment
     private String bankInfo; // Chỉ cho Withdrawal
     private TransactionType walletTransactionType; // Chỉ cho WalletTransaction
