@@ -22,6 +22,8 @@ import petitus.petcareplus.service.ServiceProviderProfileService;
 import petitus.petcareplus.service.ServiceReviewService;
 import petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest;
 import petitus.petcareplus.dto.response.profile.ServiceProviderUpgradeRequestResponse;
+import petitus.petcareplus.exception.ResourceNotFoundException;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -186,12 +188,16 @@ public class ServiceProviderProfileController extends BaseController {
         }
 
         @Transactional(readOnly = true)
-        @GetMapping("/my-upgrade-request")
+        @GetMapping("/my")
         @Operation(tags = {
                 "Service Provider Profile" }, summary = "Get my latest service provider upgrade request", description = "API để lấy yêu cầu nâng cấp nhà cung cấp dịch vụ của tôi (gần nhất)")
-        public ResponseEntity<ServiceProviderUpgradeRequestResponse> getMyLatestUpgradeRequest() {
-            ServiceProviderUpgradeRequest request = serviceProviderProfileService.getMyLatestUpgradeRequest();
-            return ResponseEntity.ok(ServiceProviderUpgradeRequestResponse.from(request));
+        public ResponseEntity<?> getMyLatestUpgradeRequest() {
+            try {
+                ServiceProviderUpgradeRequest request = serviceProviderProfileService.getMyLatestUpgradeRequest();
+                return ResponseEntity.ok(ServiceProviderUpgradeRequestResponse.from(request));
+            } catch (ResourceNotFoundException ex) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", ex.getMessage()));
+            }
         }
 
         @GetMapping("/debug/{id}")
