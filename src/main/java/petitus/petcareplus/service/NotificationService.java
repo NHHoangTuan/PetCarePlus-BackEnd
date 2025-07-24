@@ -21,6 +21,7 @@ import petitus.petcareplus.utils.PageRequestBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,8 @@ import java.util.stream.Collectors;
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserService userService;
+    private final FcmTokenService fcmTokenService;
+    private final FirebaseMessagingService firebaseMessagingService;
 
     @Transactional
     public NotificationResponse pushNotification(NotificationRequest request) {
@@ -148,8 +151,18 @@ public class NotificationService {
     public void sendNotification(User user, String message) {
         NotificationRequest request = new NotificationRequest();
         request.setUserIdReceive(user.getId());
-        request.setTitle("Service Provider Upgrade Request Update");
+        request.setTitle("🐾 Provider Upgrade Update! 🥳");
         request.setMessage(message);
         pushNotification(request);
+        // Send FCM push notification
+        List<String> tokens = fcmTokenService.getUserTokens(user.getId());
+        for (String token : tokens) {
+            firebaseMessagingService.sendNotification(
+                token,
+                "🐾 Provider Upgrade Update! 🥳",
+                message,
+                Map.of("type", "PROVIDER_UPGRADE")
+            );
+        }
     }
 }

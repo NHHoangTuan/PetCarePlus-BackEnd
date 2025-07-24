@@ -242,9 +242,13 @@ public class ServiceProviderProfileService {
         profileRepository.save(existingProfile);
         // Mark request as approved
         request.setStatus(ServiceProviderUpgradeRequest.Status.APPROVED);
+        // Set acceptedProvider=true on profile
+        existingProfile.setIsAcceptedProvider(true);
+        profileRepository.save(existingProfile);
         upgradeRequestRepository.save(request);
         // Notify user
-        notificationService.sendNotification(user, "Your request to become a service provider has been approved.");
+        String approvedMsg = messageSourceService.get("provider_upgrade_approved");
+        notificationService.sendNotification(user, approvedMsg);
     }
 
     @Transactional
@@ -258,11 +262,27 @@ public class ServiceProviderProfileService {
         request.setRejectionReason(reason);
         upgradeRequestRepository.save(request);
         // Notify user
-        notificationService.sendNotification(request.getUser(), "Your request to become a service provider was rejected. Reason: " + (reason != null ? reason : "No reason provided"));
+        String rejectedMsg = messageSourceService.get("provider_upgrade_rejected", new String[]{reason != null ? reason : messageSourceService.get("provider_upgrade_no_reason")});
+        notificationService.sendNotification(request.getUser(), rejectedMsg);
     }
 
     @Transactional(readOnly = true)
     public List<ServiceProviderUpgradeRequest> getAllPendingUpgradeRequestsWithUser() {
         return upgradeRequestRepository.findAllPendingWithUser();
+    }
+
+    @Transactional
+    public void confirmUpgradeToProvider() {
+        User user = userService.getUser();
+        Profile profile = profileRepository.findByUserId(user.getId());
+        if (profile == null || !Boolean.TRUE.equals(profile.getIsAcceptedProvider())) {
+            throw new RuntimeException("You are not eligible to upgrade now");
+        }
+        // Upgrade role
+        user.setRole(roleService.findByName(Constants.RoleEnum.SERVICE_PROVIDER));
+        userRepository.save(user);
+        // Reset acceptedProvider
+        profile.setIsAcceptedProvider(false);
+        profileRepository.save(profile);
     }
 }
