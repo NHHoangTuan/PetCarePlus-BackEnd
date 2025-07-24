@@ -180,7 +180,7 @@ public class ServiceProviderProfileService {
     }
 
     @Transactional(readOnly = true)
-    public ServiceProviderProfileResponse getServiceProviderProfileResponseByUserId(UUID userId) {
+    public ServiceProviderProfile getServiceProviderProfileResponseByUserId(UUID userId) {
         ServiceProviderProfile serviceProviderProfile = serviceProviderProfileRepository.findByUserIdWithAllRelations(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageSourceService.get("service_provider_profile_not_found")));
