@@ -155,7 +155,7 @@ public class NotificationService {
         request.setTitle("🐾 Provider Upgrade Update! 🥳");
         request.setMessage(message);
         request.setRelatedId(relatedId);
-        request.setType(Notifications.SERVICE_PROVIDER_UPGRADE);
+        request.setType(Notifications.SYSTEM);
 
         pushNotification(request, senderId);
         // Send FCM push notification
@@ -165,7 +165,7 @@ public class NotificationService {
                 token,
                 "🐾 Provider Upgrade Update! 🥳",
                 message,
-                Map.of("type", Notifications.SERVICE_PROVIDER_UPGRADE.name(), "relatedId", relatedId.toString())
+                Map.of("type", Notifications.SYSTEM.name(), "relatedId", relatedId.toString())
             );
         }
     }
