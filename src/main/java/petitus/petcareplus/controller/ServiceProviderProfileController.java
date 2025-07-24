@@ -14,6 +14,7 @@ import petitus.petcareplus.dto.response.SuccessResponse;
 import petitus.petcareplus.dto.response.profile.ProfilePaginationResponse;
 import petitus.petcareplus.dto.response.profile.ServiceProviderProfileResponse;
 import petitus.petcareplus.dto.response.profile.ServiceProviderProfileWithAvatarResponse;
+import petitus.petcareplus.exceptions.ResourceNotFoundException;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
 import petitus.petcareplus.model.spec.criteria.ServiceProviderProfileCriteria;
 import petitus.petcareplus.model.profile.ServiceProviderProfile;
@@ -22,7 +23,6 @@ import petitus.petcareplus.service.ServiceProviderProfileService;
 import petitus.petcareplus.service.ServiceReviewService;
 import petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest;
 import petitus.petcareplus.dto.response.profile.ServiceProviderUpgradeRequestResponse;
-import petitus.petcareplus.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
