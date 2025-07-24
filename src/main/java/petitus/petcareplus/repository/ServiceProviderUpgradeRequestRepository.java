@@ -24,9 +24,17 @@ public interface ServiceProviderUpgradeRequestRepository extends JpaRepository<S
             "WHERE r.id = :requestId")
     Optional<ServiceProviderUpgradeRequest> findByIdWithUserAndRole(@Param("requestId") UUID requestId);
 
-    @Query("SELECT r FROM ServiceProviderUpgradeRequest r WHERE r.user.id = :userId AND r.status = petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest.Status.APPROVED ORDER BY r.createdAt DESC")
+    @Query("SELECT r FROM ServiceProviderUpgradeRequest r " +
+            "JOIN FETCH r.user u " +
+            "JOIN FETCH u.role " +
+            "LEFT JOIN FETCH r.imageUrls " +
+            "WHERE r.user.id = :userId AND r.status = petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest.Status.APPROVED ORDER BY r.createdAt DESC")
     Optional<ServiceProviderUpgradeRequest> findTopByUserIdAndStatusOrderByCreatedAtDesc(@Param("userId") UUID userId);
 
-    @Query("SELECT r FROM ServiceProviderUpgradeRequest r WHERE r.user.id = :userId ORDER BY r.createdAt DESC")
+    @Query("SELECT r FROM ServiceProviderUpgradeRequest r " +
+            "JOIN FETCH r.user u " +
+            "JOIN FETCH u.role " +
+            "LEFT JOIN FETCH r.imageUrls " +
+            "WHERE r.user.id = :userId ORDER BY r.createdAt DESC")
     Optional<ServiceProviderUpgradeRequest> findTopByUserIdOrderByCreatedAtDesc(@Param("userId") UUID userId);
 } 

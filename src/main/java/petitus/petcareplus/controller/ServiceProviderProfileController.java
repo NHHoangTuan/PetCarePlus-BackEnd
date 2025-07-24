@@ -14,7 +14,6 @@ import petitus.petcareplus.dto.response.SuccessResponse;
 import petitus.petcareplus.dto.response.profile.ProfilePaginationResponse;
 import petitus.petcareplus.dto.response.profile.ServiceProviderProfileResponse;
 import petitus.petcareplus.dto.response.profile.ServiceProviderProfileWithAvatarResponse;
-import petitus.petcareplus.exceptions.ResourceNotFoundException;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
 import petitus.petcareplus.model.spec.criteria.ServiceProviderProfileCriteria;
 import petitus.petcareplus.model.profile.ServiceProviderProfile;
@@ -22,8 +21,6 @@ import petitus.petcareplus.service.MessageSourceService;
 import petitus.petcareplus.service.ServiceProviderProfileService;
 import petitus.petcareplus.service.ServiceReviewService;
 import petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest;
-import petitus.petcareplus.dto.response.profile.ServiceProviderUpgradeRequestResponse;
-import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -188,16 +185,12 @@ public class ServiceProviderProfileController extends BaseController {
         }
 
         @Transactional(readOnly = true)
-        @GetMapping("/my")
+        @GetMapping("/my-upgrade-request")
         @Operation(tags = {
                 "Service Provider Profile" }, summary = "Get my latest service provider upgrade request", description = "API để lấy yêu cầu nâng cấp nhà cung cấp dịch vụ của tôi (gần nhất)")
-        public ResponseEntity<?> getMyLatestUpgradeRequest() {
-            try {
-                ServiceProviderUpgradeRequest request = serviceProviderProfileService.getMyLatestUpgradeRequest();
-                return ResponseEntity.ok(ServiceProviderUpgradeRequestResponse.from(request));
-            } catch (ResourceNotFoundException ex) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", ex.getMessage()));
-            }
+        public ResponseEntity<ServiceProviderUpgradeRequest> getMyLatestUpgradeRequest() {
+            ServiceProviderUpgradeRequest request = serviceProviderProfileService.getMyLatestUpgradeRequest();
+            return ResponseEntity.ok(request);
         }
 
         @GetMapping("/debug/{id}")
