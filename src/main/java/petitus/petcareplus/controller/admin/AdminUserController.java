@@ -18,18 +18,23 @@ import petitus.petcareplus.controller.BaseController;
 import petitus.petcareplus.dto.request.auth.ChangeUserRoleRequest;
 import petitus.petcareplus.dto.request.auth.UpdateUserRequest;
 import petitus.petcareplus.dto.response.StandardPaginationResponse;
+import petitus.petcareplus.dto.response.SuccessResponse;
 import petitus.petcareplus.dto.response.user.UserResponse;
 import petitus.petcareplus.model.User;
+import petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest;
+import petitus.petcareplus.repository.ServiceProviderUpgradeRequestRepository;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
 import petitus.petcareplus.model.spec.criteria.UserCriteria;
 import petitus.petcareplus.service.AdminService;
 import petitus.petcareplus.service.MessageSourceService;
+import petitus.petcareplus.service.ServiceProviderProfileService;
 import petitus.petcareplus.service.UserService;
 import petitus.petcareplus.utils.Constants;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,6 +46,8 @@ public class AdminUserController extends BaseController {
 
         private final UserService userService;
         private final AdminService adminService;
+        private final ServiceProviderProfileService serviceProviderProfileService;
+        private final ServiceProviderUpgradeRequestRepository upgradeRequestRepository;
 
         private final MessageSourceService messageSourceService;
 
@@ -97,6 +104,23 @@ public class AdminUserController extends BaseController {
                 return ResponseEntity.ok(response);
         }
 
+        @GetMapping("/upgrade-requests/pending")
+        @PreAuthorize("hasAuthority('ADMIN')")
+        @Operation(summary = "List all pending service provider upgrade requests")
+        public ResponseEntity<List<ServiceProviderUpgradeRequest>> listPendingUpgradeRequests() {
+            List<ServiceProviderUpgradeRequest> pending = serviceProviderProfileService.getAllPendingUpgradeRequestsWithUser();
+            return ResponseEntity.ok(pending);
+        }
+
+        @GetMapping("/upgrade-requests/{requestId}")
+        @PreAuthorize("hasAuthority('ADMIN')")
+        @Operation(summary = "Get details of a specific service provider upgrade request")
+        public ResponseEntity<ServiceProviderUpgradeRequest> getUpgradeRequest(@PathVariable UUID requestId) {
+            ServiceProviderUpgradeRequest req = upgradeRequestRepository.findByIdWithUserAndRole(requestId)
+                .orElseThrow(() -> new RuntimeException("Upgrade request not found"));
+            return ResponseEntity.ok(req);
+        }
+
         @GetMapping("/{id}")
         @Operation(summary = "Get an user", description = "API để lấy thông tin một người dùng", security = {
                         @SecurityRequirement(name = "bearerAuth") })
@@ -143,5 +167,21 @@ public class AdminUserController extends BaseController {
 
                 User updatedUser = adminService.unblockUser(id);
                 return ResponseEntity.ok(UserResponse.convert(updatedUser));
+        }
+
+        @PostMapping("/approve-upgrade-request/{requestId}")
+        @PreAuthorize("hasAuthority('ADMIN')")
+        @Operation(summary = "Approve service provider upgrade request", description = "Admin approves a user's request to become a service provider")
+        public ResponseEntity<SuccessResponse> approveUpgradeRequest(@PathVariable UUID requestId) {
+            serviceProviderProfileService.approveUpgradeRequest(requestId);
+            return ResponseEntity.ok(SuccessResponse.builder().message(messageSourceService.get("upgrade_request_approved")).build());
+        }
+
+        @PostMapping("/reject-upgrade-request/{requestId}")
+        @PreAuthorize("hasAuthority('ADMIN')")
+        @Operation(summary = "Reject service provider upgrade request", description = "Admin rejects a user's request to become a service provider")
+        public ResponseEntity<SuccessResponse> rejectUpgradeRequest(@PathVariable UUID requestId, @RequestBody(required = false) String reason) {
+            serviceProviderProfileService.rejectUpgradeRequest(requestId, reason);
+            return ResponseEntity.ok(SuccessResponse.builder().message(messageSourceService.get("upgrade_request_rejected")).build());
         }
 }

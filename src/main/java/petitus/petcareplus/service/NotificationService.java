@@ -12,14 +12,17 @@ import petitus.petcareplus.dto.response.notification.AdminNotificationResponse;
 import petitus.petcareplus.dto.response.notification.NotificationResponse;
 import petitus.petcareplus.exceptions.ResourceNotFoundException;
 import petitus.petcareplus.model.Notification;
+import petitus.petcareplus.model.User;
 import petitus.petcareplus.model.spec.NotificationSpecification;
 import petitus.petcareplus.model.spec.criteria.NotificationCriteria;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
 import petitus.petcareplus.repository.NotificationRepository;
 import petitus.petcareplus.utils.PageRequestBuilder;
+import petitus.petcareplus.utils.enums.Notifications;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,6 +31,8 @@ import java.util.stream.Collectors;
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserService userService;
+    private final FcmTokenService fcmTokenService;
+    private final FirebaseMessagingService firebaseMessagingService;
 
     @Transactional
     public NotificationResponse pushNotification(NotificationRequest request) {
@@ -142,5 +147,26 @@ public class NotificationService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
         return mapToAdminBookingResponse(notification);
+    }
+
+    public void sendNotification(User user, String message, UUID relatedId, UUID senderId) {
+        NotificationRequest request = new NotificationRequest();
+        request.setUserIdReceive(user.getId());
+        request.setTitle("🐾 Provider Upgrade Update! 🥳");
+        request.setMessage(message);
+        request.setRelatedId(relatedId);
+        request.setType(Notifications.SYSTEM);
+
+        pushNotification(request, senderId);
+        // Send FCM push notification
+        List<String> tokens = fcmTokenService.getUserTokens(user.getId());
+        for (String token : tokens) {
+            firebaseMessagingService.sendNotification(
+                token,
+                "🐾 Provider Upgrade Update! 🥳",
+                message,
+                Map.of("type", Notifications.SYSTEM.name(), "relatedId", relatedId.toString())
+            );
+        }
     }
 }

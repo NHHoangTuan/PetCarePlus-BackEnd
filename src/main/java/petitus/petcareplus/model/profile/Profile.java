@@ -45,6 +45,9 @@ public class Profile extends AbstractBaseEntity {
     @Column(name = "about", columnDefinition = "TEXT")
     private String about;
 
+    @Column(name = "is_accepted_provider")
+    private Boolean isAcceptedProvider = false;
+
     @Version
     private Long version;
 }
