@@ -173,6 +173,15 @@ public class ServiceProviderProfileController extends BaseController {
                 return ResponseEntity.ok(response);
         }
 
+        @Transactional(readOnly = true)
+        @GetMapping("/user/{userId}")
+        @Operation(tags = {
+                "Service Provider Profile" }, summary = "Get service provider profile by user ID", description = "API để lấy thông tin service provider profile theo user ID")
+        public ResponseEntity<ServiceProviderProfileResponse> getServiceProviderProfileByUserId(@PathVariable UUID userId) {
+                ServiceProviderProfileResponse response = serviceProviderProfileService.getServiceProviderProfileResponseByUserId(userId);
+                return ResponseEntity.ok(response);
+        }
+
         @GetMapping("/debug/{id}")
         public ResponseEntity<Map<String, Object>> debugServiceProviderProfile(@PathVariable UUID id) {
                 try {
