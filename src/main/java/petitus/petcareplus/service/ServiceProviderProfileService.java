@@ -184,7 +184,7 @@ public class ServiceProviderProfileService {
         ServiceProviderProfile serviceProviderProfile = serviceProviderProfileRepository.findByUserIdWithAllRelations(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageSourceService.get("service_provider_profile_not_found")));
-        return mapToServiceProviderProfileResponse(serviceProviderProfile);
+        return serviceProviderProfile;
     }
 
     private ServiceProviderProfileResponse mapToServiceProviderProfileResponse(
