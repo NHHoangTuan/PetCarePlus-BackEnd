@@ -22,6 +22,7 @@ import petitus.petcareplus.repository.UserRepository;
 import petitus.petcareplus.utils.Constants;
 import petitus.petcareplus.utils.PageRequestBuilder;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -258,5 +259,10 @@ public class ServiceProviderProfileService {
         upgradeRequestRepository.save(request);
         // Notify user
         notificationService.sendNotification(request.getUser(), "Your request to become a service provider was rejected. Reason: " + (reason != null ? reason : "No reason provided"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ServiceProviderUpgradeRequest> getAllPendingUpgradeRequestsWithUser() {
+        return upgradeRequestRepository.findAllPendingWithUser();
     }
 }

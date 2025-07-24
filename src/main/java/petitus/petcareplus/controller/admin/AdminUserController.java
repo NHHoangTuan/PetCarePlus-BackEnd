@@ -108,10 +108,7 @@ public class AdminUserController extends BaseController {
         @PreAuthorize("hasAuthority('ADMIN')")
         @Operation(summary = "List all pending service provider upgrade requests")
         public ResponseEntity<List<ServiceProviderUpgradeRequest>> listPendingUpgradeRequests() {
-            List<ServiceProviderUpgradeRequest> pending = upgradeRequestRepository.findAll()
-                .stream()
-                .filter(r -> r.getStatus() == ServiceProviderUpgradeRequest.Status.PENDING)
-                .toList();
+            List<ServiceProviderUpgradeRequest> pending = serviceProviderProfileService.getAllPendingUpgradeRequestsWithUser();
             return ResponseEntity.ok(pending);
         }
 
