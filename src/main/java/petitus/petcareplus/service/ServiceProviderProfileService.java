@@ -179,6 +179,14 @@ public class ServiceProviderProfileService {
         return mapToServiceProviderProfileResponse(serviceProviderProfile);
     }
 
+    @Transactional(readOnly = true)
+    public ServiceProviderProfileResponse getServiceProviderProfileResponseByUserId(UUID userId) {
+        ServiceProviderProfile serviceProviderProfile = serviceProviderProfileRepository.findByUserIdWithAllRelations(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messageSourceService.get("service_provider_profile_not_found")));
+        return mapToServiceProviderProfileResponse(serviceProviderProfile);
+    }
+
     private ServiceProviderProfileResponse mapToServiceProviderProfileResponse(
             ServiceProviderProfile serviceProviderProfile) {
         return ServiceProviderProfileResponse.builder()
