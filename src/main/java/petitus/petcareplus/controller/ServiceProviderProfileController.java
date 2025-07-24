@@ -177,8 +177,8 @@ public class ServiceProviderProfileController extends BaseController {
         @GetMapping("/user/{userId}")
         @Operation(tags = {
                 "Service Provider Profile" }, summary = "Get service provider profile by user ID", description = "API để lấy thông tin service provider profile theo user ID")
-        public ResponseEntity<ServiceProviderProfileResponse> getServiceProviderProfileByUserId(@PathVariable UUID userId) {
-                ServiceProviderProfileResponse response = serviceProviderProfileService.getServiceProviderProfileResponseByUserId(userId);
+        public ResponseEntity<ServiceProviderProfile> getServiceProviderProfileByUserId(@PathVariable UUID userId) {
+                ServiceProviderProfile response = serviceProviderProfileService.getServiceProviderProfileResponseByUserId(userId);
                 return ResponseEntity.ok(response);
         }
 
