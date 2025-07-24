@@ -12,6 +12,7 @@ import petitus.petcareplus.dto.response.notification.AdminNotificationResponse;
 import petitus.petcareplus.dto.response.notification.NotificationResponse;
 import petitus.petcareplus.exceptions.ResourceNotFoundException;
 import petitus.petcareplus.model.Notification;
+import petitus.petcareplus.model.User;
 import petitus.petcareplus.model.spec.NotificationSpecification;
 import petitus.petcareplus.model.spec.criteria.NotificationCriteria;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
@@ -142,5 +143,13 @@ public class NotificationService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
         return mapToAdminBookingResponse(notification);
+    }
+
+    public void sendNotification(User user, String message) {
+        NotificationRequest request = new NotificationRequest();
+        request.setUserIdReceive(user.getId());
+        request.setTitle("Service Provider Upgrade Request Update");
+        request.setMessage(message);
+        pushNotification(request);
     }
 }

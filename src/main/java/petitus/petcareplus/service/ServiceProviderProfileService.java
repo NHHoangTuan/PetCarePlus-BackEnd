@@ -14,8 +14,10 @@ import petitus.petcareplus.model.spec.criteria.ServiceProviderProfileCriteria;
 import petitus.petcareplus.model.User;
 import petitus.petcareplus.model.profile.Profile;
 import petitus.petcareplus.model.profile.ServiceProviderProfile;
+import petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest;
 import petitus.petcareplus.repository.ProfileRepository;
 import petitus.petcareplus.repository.ServiceProviderProfileRepository;
+import petitus.petcareplus.repository.ServiceProviderUpgradeRequestRepository;
 import petitus.petcareplus.repository.UserRepository;
 import petitus.petcareplus.utils.Constants;
 import petitus.petcareplus.utils.PageRequestBuilder;
@@ -32,6 +34,8 @@ public class ServiceProviderProfileService {
     private final UserService userService;
     private final RoleService roleService;
     private final MessageSourceService messageSourceService;
+    private final ServiceProviderUpgradeRequestRepository upgradeRequestRepository;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public Page<ServiceProviderProfile> findAll(ServiceProviderProfileCriteria criteria,
@@ -108,6 +112,8 @@ public class ServiceProviderProfileService {
                 .contactPhone(serviceProviderProfileRequest.getContactPhone())
                 .availableTime(serviceProviderProfileRequest.getAvailableTime())
                 .imageUrls(serviceProviderProfileRequest.getImageUrls())
+                .idCardFrontUrl(serviceProviderProfileRequest.getIdCardFrontUrl())
+                .idCardBackUrl(serviceProviderProfileRequest.getIdCardBackUrl())
                 .build();
 
         // Set up the bidirectional relationship properly
@@ -145,6 +151,14 @@ public class ServiceProviderProfileService {
         existingServiceProviderProfile.setBusinessBio(serviceProviderProfileRequest.getBusinessBio());
         existingServiceProviderProfile.setBusinessAddress(serviceProviderProfileRequest.getBusinessAddress());
 
+        // Update ID card images if provided
+        if (serviceProviderProfileRequest.getIdCardFrontUrl() != null) {
+            existingServiceProviderProfile.setIdCardFrontUrl(serviceProviderProfileRequest.getIdCardFrontUrl());
+        }
+        if (serviceProviderProfileRequest.getIdCardBackUrl() != null) {
+            existingServiceProviderProfile.setIdCardBackUrl(serviceProviderProfileRequest.getIdCardBackUrl());
+        }
+
         // Save the service provider profile
         serviceProviderProfileRepository.save(existingServiceProviderProfile);
     }
@@ -175,5 +189,74 @@ public class ServiceProviderProfileService {
                 .createdAt(serviceProviderProfile.getCreatedAt())
                 .updatedAt(serviceProviderProfile.getUpdatedAt())
                 .build();
+    }
+
+    @Transactional
+    public void createUpgradeRequest(ServiceProviderProfileRequest request) {
+        User user = userService.getUser();
+        ServiceProviderUpgradeRequest upgradeRequest = ServiceProviderUpgradeRequest.builder()
+                .user(user)
+                .businessName(request.getBusinessName())
+                .businessBio(request.getBusinessBio())
+                .businessAddress(request.getBusinessAddress())
+                .contactPhone(request.getContactPhone())
+                .contactEmail(request.getContactEmail())
+                .availableTime(request.getAvailableTime())
+                .imageUrls(request.getImageUrls())
+                .idCardFrontUrl(request.getIdCardFrontUrl())
+                .idCardBackUrl(request.getIdCardBackUrl())
+                .status(ServiceProviderUpgradeRequest.Status.PENDING)
+                .build();
+        upgradeRequestRepository.save(upgradeRequest);
+    }
+
+    @Transactional
+    public void approveUpgradeRequest(UUID requestId) {
+        ServiceProviderUpgradeRequest request = upgradeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Upgrade request not found"));
+        if (request.getStatus() != ServiceProviderUpgradeRequest.Status.PENDING) {
+            throw new RuntimeException("Request is not pending");
+        }
+        User user = request.getUser();
+        Profile existingProfile = profileRepository.findByUserId(user.getId());
+        if (existingProfile == null) {
+            throw new RuntimeException("Profile not found");
+        }
+        // Create ServiceProviderProfile
+        ServiceProviderProfile serviceProviderProfile = ServiceProviderProfile.builder()
+                .profile(existingProfile)
+                .businessName(request.getBusinessName())
+                .businessBio(request.getBusinessBio())
+                .businessAddress(request.getBusinessAddress())
+                .contactEmail(request.getContactEmail())
+                .contactPhone(request.getContactPhone())
+                .availableTime(request.getAvailableTime())
+                .imageUrls(request.getImageUrls())
+                .idCardFrontUrl(request.getIdCardFrontUrl())
+                .idCardBackUrl(request.getIdCardBackUrl())
+                .build();
+        setupBidirectionalRelationship(existingProfile, serviceProviderProfile);
+        user.setRole(roleService.findByName(Constants.RoleEnum.SERVICE_PROVIDER));
+        userRepository.save(user);
+        profileRepository.save(existingProfile);
+        // Mark request as approved
+        request.setStatus(ServiceProviderUpgradeRequest.Status.APPROVED);
+        upgradeRequestRepository.save(request);
+        // Notify user
+        notificationService.sendNotification(user, "Your request to become a service provider has been approved.");
+    }
+
+    @Transactional
+    public void rejectUpgradeRequest(UUID requestId, String reason) {
+        ServiceProviderUpgradeRequest request = upgradeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Upgrade request not found"));
+        if (request.getStatus() != ServiceProviderUpgradeRequest.Status.PENDING) {
+            throw new RuntimeException("Request is not pending");
+        }
+        request.setStatus(ServiceProviderUpgradeRequest.Status.REJECTED);
+        request.setRejectionReason(reason);
+        upgradeRequestRepository.save(request);
+        // Notify user
+        notificationService.sendNotification(request.getUser(), "Your request to become a service provider was rejected. Reason: " + (reason != null ? reason : "No reason provided"));
     }
 }

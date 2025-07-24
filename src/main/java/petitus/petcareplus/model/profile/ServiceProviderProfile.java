@@ -49,4 +49,10 @@ public class ServiceProviderProfile extends AbstractBaseEntity{
     @Column(name = "rating", nullable = false)
     @Builder.Default
     private Double rating = 0.0;
+
+    @Column(name = "id_card_front_url")
+    private String idCardFrontUrl;
+
+    @Column(name = "id_card_back_url")
+    private String idCardBackUrl;
 }
