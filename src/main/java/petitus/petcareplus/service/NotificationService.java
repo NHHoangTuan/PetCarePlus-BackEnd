@@ -18,6 +18,7 @@ import petitus.petcareplus.model.spec.criteria.NotificationCriteria;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
 import petitus.petcareplus.repository.NotificationRepository;
 import petitus.petcareplus.utils.PageRequestBuilder;
+import petitus.petcareplus.utils.enums.Notifications;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -148,12 +149,15 @@ public class NotificationService {
         return mapToAdminBookingResponse(notification);
     }
 
-    public void sendNotification(User user, String message) {
+    public void sendNotification(User user, String message, UUID relatedId, UUID senderId) {
         NotificationRequest request = new NotificationRequest();
         request.setUserIdReceive(user.getId());
         request.setTitle("🐾 Provider Upgrade Update! 🥳");
         request.setMessage(message);
-        pushNotification(request);
+        request.setRelatedId(relatedId);
+        request.setType(Notifications.SERVICE_PROVIDER_UPGRADE);
+
+        pushNotification(request, senderId);
         // Send FCM push notification
         List<String> tokens = fcmTokenService.getUserTokens(user.getId());
         for (String token : tokens) {
@@ -161,7 +165,7 @@ public class NotificationService {
                 token,
                 "🐾 Provider Upgrade Update! 🥳",
                 message,
-                Map.of("type", "PROVIDER_UPGRADE")
+                Map.of("type", Notifications.SERVICE_PROVIDER_UPGRADE.name(), "relatedId", relatedId.toString())
             );
         }
     }

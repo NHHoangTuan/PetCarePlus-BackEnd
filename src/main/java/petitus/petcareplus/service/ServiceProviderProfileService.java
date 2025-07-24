@@ -213,6 +213,7 @@ public class ServiceProviderProfileService {
 
     @Transactional
     public void approveUpgradeRequest(UUID requestId) {
+        User currentUserId = userService.getUser();
         ServiceProviderUpgradeRequest request = upgradeRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Upgrade request not found"));
         if (request.getStatus() != ServiceProviderUpgradeRequest.Status.PENDING) {
@@ -248,11 +249,12 @@ public class ServiceProviderProfileService {
         upgradeRequestRepository.save(request);
         // Notify user
         String approvedMsg = messageSourceService.get("provider_upgrade_approved");
-        notificationService.sendNotification(user, approvedMsg);
+        notificationService.sendNotification(user, approvedMsg, request.getId(), currentUserId.getId());
     }
 
     @Transactional
     public void rejectUpgradeRequest(UUID requestId, String reason) {
+        User currentUserId = userService.getUser();
         ServiceProviderUpgradeRequest request = upgradeRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Upgrade request not found"));
         if (request.getStatus() != ServiceProviderUpgradeRequest.Status.PENDING) {
@@ -263,7 +265,7 @@ public class ServiceProviderProfileService {
         upgradeRequestRepository.save(request);
         // Notify user
         String rejectedMsg = messageSourceService.get("provider_upgrade_rejected", new String[]{reason != null ? reason : messageSourceService.get("provider_upgrade_no_reason")});
-        notificationService.sendNotification(request.getUser(), rejectedMsg);
+        notificationService.sendNotification(request.getUser(), rejectedMsg, request.getId(), currentUserId.getId());
     }
 
     @Transactional(readOnly = true)
