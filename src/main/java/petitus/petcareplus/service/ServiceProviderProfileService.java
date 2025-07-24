@@ -24,6 +24,7 @@ import petitus.petcareplus.utils.PageRequestBuilder;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -112,7 +113,7 @@ public class ServiceProviderProfileService {
                 .contactEmail(serviceProviderProfileRequest.getContactEmail())
                 .contactPhone(serviceProviderProfileRequest.getContactPhone())
                 .availableTime(serviceProviderProfileRequest.getAvailableTime())
-                .imageUrls(serviceProviderProfileRequest.getImageUrls())
+                .imageUrls(serviceProviderProfileRequest.getImageUrls() != null ? new HashSet<>(serviceProviderProfileRequest.getImageUrls()) : null)
                 .idCardFrontUrl(serviceProviderProfileRequest.getIdCardFrontUrl())
                 .idCardBackUrl(serviceProviderProfileRequest.getIdCardBackUrl())
                 .build();
@@ -147,7 +148,7 @@ public class ServiceProviderProfileService {
         existingServiceProviderProfile.setContactEmail(serviceProviderProfileRequest.getContactEmail());
         existingServiceProviderProfile.setContactPhone(serviceProviderProfileRequest.getContactPhone());
         existingServiceProviderProfile.setAvailableTime(serviceProviderProfileRequest.getAvailableTime());
-        existingServiceProviderProfile.setImageUrls(serviceProviderProfileRequest.getImageUrls());
+        existingServiceProviderProfile.setImageUrls(serviceProviderProfileRequest.getImageUrls() != null ? new HashSet<>(serviceProviderProfileRequest.getImageUrls()) : null);
         existingServiceProviderProfile.setBusinessName(serviceProviderProfileRequest.getBusinessName());
         existingServiceProviderProfile.setBusinessBio(serviceProviderProfileRequest.getBusinessBio());
         existingServiceProviderProfile.setBusinessAddress(serviceProviderProfileRequest.getBusinessAddress());
@@ -203,7 +204,7 @@ public class ServiceProviderProfileService {
                 .contactPhone(request.getContactPhone())
                 .contactEmail(request.getContactEmail())
                 .availableTime(request.getAvailableTime())
-                .imageUrls(request.getImageUrls())
+                .imageUrls(request.getImageUrls() != null ? new HashSet<>(request.getImageUrls()) : null)
                 .idCardFrontUrl(request.getIdCardFrontUrl())
                 .idCardBackUrl(request.getIdCardBackUrl())
                 .status(ServiceProviderUpgradeRequest.Status.PENDING)
@@ -233,7 +234,7 @@ public class ServiceProviderProfileService {
                 .contactEmail(request.getContactEmail())
                 .contactPhone(request.getContactPhone())
                 .availableTime(request.getAvailableTime())
-                .imageUrls(request.getImageUrls())
+                .imageUrls(request.getImageUrls() != null ? new HashSet<>(request.getImageUrls()) : null)
                 .idCardFrontUrl(request.getIdCardFrontUrl())
                 .idCardBackUrl(request.getIdCardBackUrl())
                 .build();
