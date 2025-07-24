@@ -293,4 +293,11 @@ public class ServiceProviderProfileService {
         profile.setIsAcceptedProvider(false);
         profileRepository.save(profile);
     }
+
+    @Transactional(readOnly = true)
+    public ServiceProviderUpgradeRequest getMyLatestUpgradeRequest() {
+        UUID userId = userService.getCurrentUserId();
+        return upgradeRequestRepository.findTopByUserIdOrderByCreatedAtDesc(userId)
+            .orElseThrow(() -> new ResourceNotFoundException(messageSourceService.get("upgrade_request_not_found")));
+    }
 }

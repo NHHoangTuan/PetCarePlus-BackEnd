@@ -19,6 +19,7 @@ import petitus.petcareplus.model.profile.ServiceProviderProfile;
 import petitus.petcareplus.service.MessageSourceService;
 import petitus.petcareplus.service.ServiceProviderProfileService;
 import petitus.petcareplus.service.ServiceReviewService;
+import petitus.petcareplus.model.ServiceProviderUpgradeRequest;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -180,6 +181,15 @@ public class ServiceProviderProfileController extends BaseController {
         public ResponseEntity<ServiceProviderProfile> getServiceProviderProfileByUserId(@PathVariable UUID userId) {
                 ServiceProviderProfile response = serviceProviderProfileService.getServiceProviderProfileResponseByUserId(userId);
                 return ResponseEntity.ok(response);
+        }
+
+        @Transactional(readOnly = true)
+        @GetMapping("/my-upgrade-request")
+        @Operation(tags = {
+                "Service Provider Profile" }, summary = "Get my latest service provider upgrade request", description = "API để lấy yêu cầu nâng cấp nhà cung cấp dịch vụ của tôi (gần nhất)")
+        public ResponseEntity<ServiceProviderUpgradeRequest> getMyLatestUpgradeRequest() {
+            ServiceProviderUpgradeRequest request = serviceProviderProfileService.getMyLatestUpgradeRequest();
+            return ResponseEntity.ok(request);
         }
 
         @GetMapping("/debug/{id}")
