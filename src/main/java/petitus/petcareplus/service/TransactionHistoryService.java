@@ -333,7 +333,9 @@ public class TransactionHistoryService {
         }
 
         private TransactionHistoryResponse mapToTransactionHistoryResponseFromPayment(Payment payment) {
-                BookingResponse bookingResponse = mapToBookingResponse(payment.getBooking());
+                BookingResponse bookingResponse = payment.getBooking() != null
+                                ? mapToBookingResponse(payment.getBooking())
+                                : null;
 
                 return TransactionHistoryResponse.builder()
                                 .id(payment.getId())
@@ -353,6 +355,12 @@ public class TransactionHistoryService {
 
         private TransactionHistoryResponse mapToTransactionHistoryResponseFromWalletTransaction(
                         WalletTransaction transaction) {
+
+                log.debug("Mapping wallet transaction: id={}, type={}, bookingId={}",
+                                transaction.getId(),
+                                transaction.getType(),
+                                transaction.getBooking() != null ? transaction.getBooking().getId() : "null");
+
                 String title = switch (transaction.getType()) {
                         case SERVICE_PROVIDER_EARNING -> "Service Earning";
                         case WITHDRAWAL -> "Withdrawal";
@@ -360,8 +368,9 @@ public class TransactionHistoryService {
                         case DEPOSIT -> "Deposit";
                 };
 
-                BookingResponse bookingResponse = mapToBookingResponse(transaction.getBooking());
-
+                BookingResponse bookingResponse = transaction.getBooking() != null
+                                ? mapToBookingResponse(transaction.getBooking())
+                                : null;
                 return TransactionHistoryResponse.builder()
                                 .id(transaction.getId())
                                 .category(TransactionCategory.WALLET_TRANSACTION)
@@ -399,6 +408,7 @@ public class TransactionHistoryService {
         }
 
         private BookingResponse mapToBookingResponse(Booking booking) {
+
                 // Fetch pet bookings
                 List<PetBooking> petBookings = petBookingRepository.findByBookingId(booking.getId());
                 List<ServiceBooking> serviceBookings = serviceBookingRepository.findByBookingId(booking.getId());
