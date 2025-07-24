@@ -13,6 +13,7 @@ import petitus.petcareplus.dto.request.profile.ServiceProviderProfileRequest;
 import petitus.petcareplus.dto.response.SuccessResponse;
 import petitus.petcareplus.dto.response.profile.ProfilePaginationResponse;
 import petitus.petcareplus.dto.response.profile.ServiceProviderProfileResponse;
+import petitus.petcareplus.dto.response.profile.ServiceProviderProfileWithAvatarResponse;
 import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
 import petitus.petcareplus.model.spec.criteria.ServiceProviderProfileCriteria;
 import petitus.petcareplus.model.profile.ServiceProviderProfile;
@@ -178,8 +179,8 @@ public class ServiceProviderProfileController extends BaseController {
         @GetMapping("/user/{userId}")
         @Operation(tags = {
                 "Service Provider Profile" }, summary = "Get service provider profile by user ID", description = "API để lấy thông tin service provider profile theo user ID")
-        public ResponseEntity<ServiceProviderProfile> getServiceProviderProfileByUserId(@PathVariable UUID userId) {
-                ServiceProviderProfile response = serviceProviderProfileService.getServiceProviderProfileResponseByUserId(userId);
+        public ResponseEntity<ServiceProviderProfileWithAvatarResponse> getServiceProviderProfileByUserId(@PathVariable UUID userId) {
+                ServiceProviderProfileWithAvatarResponse response = serviceProviderProfileService.getServiceProviderProfileResponseByUserId(userId);
                 return ResponseEntity.ok(response);
         }
 

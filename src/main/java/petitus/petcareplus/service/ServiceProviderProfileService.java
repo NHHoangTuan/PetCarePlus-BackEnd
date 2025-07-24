@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import petitus.petcareplus.dto.request.profile.ServiceProviderProfileRequest;
 import petitus.petcareplus.dto.response.profile.ServiceProviderProfileResponse;
+import petitus.petcareplus.dto.response.profile.ServiceProviderProfileWithAvatarResponse;
 import petitus.petcareplus.exceptions.DataExistedException;
 import petitus.petcareplus.exceptions.ResourceNotFoundException;
 import petitus.petcareplus.model.spec.ServiceProviderProfileFilterSpecification;
@@ -180,11 +181,15 @@ public class ServiceProviderProfileService {
     }
 
     @Transactional(readOnly = true)
-    public ServiceProviderProfile getServiceProviderProfileResponseByUserId(UUID userId) {
+    public ServiceProviderProfileWithAvatarResponse getServiceProviderProfileResponseByUserId(UUID userId) {
         ServiceProviderProfile serviceProviderProfile = serviceProviderProfileRepository.findByUserIdWithAllRelations(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         messageSourceService.get("service_provider_profile_not_found")));
-        return serviceProviderProfile;
+        String avatarUrl = null;
+        if (serviceProviderProfile.getProfile() != null) {
+            avatarUrl = serviceProviderProfile.getProfile().getAvatarUrl();
+        }
+        return ServiceProviderProfileWithAvatarResponse.from(serviceProviderProfile, avatarUrl);
     }
 
     private ServiceProviderProfileResponse mapToServiceProviderProfileResponse(
