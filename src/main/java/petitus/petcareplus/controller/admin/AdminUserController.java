@@ -116,7 +116,7 @@ public class AdminUserController extends BaseController {
         @PreAuthorize("hasAuthority('ADMIN')")
         @Operation(summary = "Get details of a specific service provider upgrade request")
         public ResponseEntity<ServiceProviderUpgradeRequest> getUpgradeRequest(@PathVariable UUID requestId) {
-            ServiceProviderUpgradeRequest req = upgradeRequestRepository.findById(requestId)
+            ServiceProviderUpgradeRequest req = upgradeRequestRepository.findByIdWithUserAndRole(requestId)
                 .orElseThrow(() -> new RuntimeException("Upgrade request not found"));
             return ResponseEntity.ok(req);
         }
