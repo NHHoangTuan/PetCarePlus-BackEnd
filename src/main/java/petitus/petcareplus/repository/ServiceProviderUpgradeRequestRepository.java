@@ -11,6 +11,6 @@ public interface ServiceProviderUpgradeRequestRepository extends JpaRepository<S
     @Query("SELECT r FROM ServiceProviderUpgradeRequest r " +
             "LEFT JOIN FETCH r.user " +
             "LEFT JOIN FETCH r.imageUrls " +
-            "WHERE r.status = ServiceProviderUpgradeRequest.Status.PENDING")
+            "WHERE r.status = petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest.Status.PENDING")
     List<ServiceProviderUpgradeRequest> findAllPendingWithUser();
 } 
