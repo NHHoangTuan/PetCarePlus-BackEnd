@@ -214,7 +214,6 @@ public class ServiceProviderProfileService {
 
     @Transactional
     public void approveUpgradeRequest(UUID requestId) {
-        User currentUserId = userService.getUser();
         ServiceProviderUpgradeRequest request = upgradeRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Upgrade request not found"));
         if (request.getStatus() != ServiceProviderUpgradeRequest.Status.PENDING) {
@@ -225,32 +224,14 @@ public class ServiceProviderProfileService {
         if (existingProfile == null) {
             throw new RuntimeException("Profile not found");
         }
-        // Create ServiceProviderProfile
-        ServiceProviderProfile serviceProviderProfile = ServiceProviderProfile.builder()
-                .profile(existingProfile)
-                .businessName(request.getBusinessName())
-                .businessBio(request.getBusinessBio())
-                .businessAddress(request.getBusinessAddress())
-                .contactEmail(request.getContactEmail())
-                .contactPhone(request.getContactPhone())
-                .availableTime(request.getAvailableTime())
-                .imageUrls(request.getImageUrls() != null ? new HashSet<>(request.getImageUrls()) : null)
-                .idCardFrontUrl(request.getIdCardFrontUrl())
-                .idCardBackUrl(request.getIdCardBackUrl())
-                .build();
-        setupBidirectionalRelationship(existingProfile, serviceProviderProfile);
-        user.setRole(roleService.findByName(Constants.RoleEnum.SERVICE_PROVIDER));
-        userRepository.save(user);
-        profileRepository.save(existingProfile);
-        // Mark request as approved
+        // Only set status and isAcceptedProvider
         request.setStatus(ServiceProviderUpgradeRequest.Status.APPROVED);
-        // Set acceptedProvider=true on profile
         existingProfile.setIsAcceptedProvider(true);
         profileRepository.save(existingProfile);
         upgradeRequestRepository.save(request);
         // Notify user
         String approvedMsg = messageSourceService.get("provider_upgrade_approved");
-        notificationService.sendNotification(user, approvedMsg, request.getId(), currentUserId.getId());
+        notificationService.sendNotification(user, approvedMsg, request.getId(), userService.getCurrentUserId());
     }
 
     @Transactional
@@ -284,7 +265,23 @@ public class ServiceProviderProfileService {
         // Upgrade role
         user.setRole(roleService.findByName(Constants.RoleEnum.SERVICE_PROVIDER));
         userRepository.save(user);
-        // Reset acceptedProvider
+        // Create ServiceProviderProfile from the latest approved request
+        ServiceProviderUpgradeRequest request = upgradeRequestRepository
+            .findTopByUserIdAndStatusOrderByCreatedAtDesc(user.getId())
+            .orElseThrow(() -> new RuntimeException("No approved upgrade request found"));
+        ServiceProviderProfile serviceProviderProfile = ServiceProviderProfile.builder()
+            .profile(profile)
+            .businessName(request.getBusinessName())
+            .businessBio(request.getBusinessBio())
+            .businessAddress(request.getBusinessAddress())
+            .contactEmail(request.getContactEmail())
+            .contactPhone(request.getContactPhone())
+            .availableTime(request.getAvailableTime())
+            .imageUrls(request.getImageUrls() != null ? new HashSet<>(request.getImageUrls()) : null)
+            .idCardFrontUrl(request.getIdCardFrontUrl())
+            .idCardBackUrl(request.getIdCardBackUrl())
+            .build();
+        setupBidirectionalRelationship(profile, serviceProviderProfile);
         profile.setIsAcceptedProvider(false);
         profileRepository.save(profile);
     }
