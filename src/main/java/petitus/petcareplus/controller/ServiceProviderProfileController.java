@@ -21,6 +21,7 @@ import petitus.petcareplus.service.MessageSourceService;
 import petitus.petcareplus.service.ServiceProviderProfileService;
 import petitus.petcareplus.service.ServiceReviewService;
 import petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest;
+import petitus.petcareplus.dto.response.profile.ServiceProviderUpgradeRequestResponse;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -188,9 +189,9 @@ public class ServiceProviderProfileController extends BaseController {
         @GetMapping("/my-upgrade-request")
         @Operation(tags = {
                 "Service Provider Profile" }, summary = "Get my latest service provider upgrade request", description = "API để lấy yêu cầu nâng cấp nhà cung cấp dịch vụ của tôi (gần nhất)")
-        public ResponseEntity<ServiceProviderUpgradeRequest> getMyLatestUpgradeRequest() {
+        public ResponseEntity<ServiceProviderUpgradeRequestResponse> getMyLatestUpgradeRequest() {
             ServiceProviderUpgradeRequest request = serviceProviderProfileService.getMyLatestUpgradeRequest();
-            return ResponseEntity.ok(request);
+            return ResponseEntity.ok(ServiceProviderUpgradeRequestResponse.from(request));
         }
 
         @GetMapping("/debug/{id}")
