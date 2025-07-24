@@ -14,13 +14,17 @@ import petitus.petcareplus.model.spec.criteria.ServiceProviderProfileCriteria;
 import petitus.petcareplus.model.User;
 import petitus.petcareplus.model.profile.Profile;
 import petitus.petcareplus.model.profile.ServiceProviderProfile;
+import petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest;
 import petitus.petcareplus.repository.ProfileRepository;
 import petitus.petcareplus.repository.ServiceProviderProfileRepository;
+import petitus.petcareplus.repository.ServiceProviderUpgradeRequestRepository;
 import petitus.petcareplus.repository.UserRepository;
 import petitus.petcareplus.utils.Constants;
 import petitus.petcareplus.utils.PageRequestBuilder;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,8 @@ public class ServiceProviderProfileService {
     private final UserService userService;
     private final RoleService roleService;
     private final MessageSourceService messageSourceService;
+    private final ServiceProviderUpgradeRequestRepository upgradeRequestRepository;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public Page<ServiceProviderProfile> findAll(ServiceProviderProfileCriteria criteria,
@@ -107,7 +113,9 @@ public class ServiceProviderProfileService {
                 .contactEmail(serviceProviderProfileRequest.getContactEmail())
                 .contactPhone(serviceProviderProfileRequest.getContactPhone())
                 .availableTime(serviceProviderProfileRequest.getAvailableTime())
-                .imageUrls(serviceProviderProfileRequest.getImageUrls())
+                .imageUrls(serviceProviderProfileRequest.getImageUrls() != null ? new HashSet<>(serviceProviderProfileRequest.getImageUrls()) : null)
+                .idCardFrontUrl(serviceProviderProfileRequest.getIdCardFrontUrl())
+                .idCardBackUrl(serviceProviderProfileRequest.getIdCardBackUrl())
                 .build();
 
         // Set up the bidirectional relationship properly
@@ -140,10 +148,18 @@ public class ServiceProviderProfileService {
         existingServiceProviderProfile.setContactEmail(serviceProviderProfileRequest.getContactEmail());
         existingServiceProviderProfile.setContactPhone(serviceProviderProfileRequest.getContactPhone());
         existingServiceProviderProfile.setAvailableTime(serviceProviderProfileRequest.getAvailableTime());
-        existingServiceProviderProfile.setImageUrls(serviceProviderProfileRequest.getImageUrls());
+        existingServiceProviderProfile.setImageUrls(serviceProviderProfileRequest.getImageUrls() != null ? new HashSet<>(serviceProviderProfileRequest.getImageUrls()) : null);
         existingServiceProviderProfile.setBusinessName(serviceProviderProfileRequest.getBusinessName());
         existingServiceProviderProfile.setBusinessBio(serviceProviderProfileRequest.getBusinessBio());
         existingServiceProviderProfile.setBusinessAddress(serviceProviderProfileRequest.getBusinessAddress());
+
+        // Update ID card images if provided
+        if (serviceProviderProfileRequest.getIdCardFrontUrl() != null) {
+            existingServiceProviderProfile.setIdCardFrontUrl(serviceProviderProfileRequest.getIdCardFrontUrl());
+        }
+        if (serviceProviderProfileRequest.getIdCardBackUrl() != null) {
+            existingServiceProviderProfile.setIdCardBackUrl(serviceProviderProfileRequest.getIdCardBackUrl());
+        }
 
         // Save the service provider profile
         serviceProviderProfileRepository.save(existingServiceProviderProfile);
@@ -175,5 +191,98 @@ public class ServiceProviderProfileService {
                 .createdAt(serviceProviderProfile.getCreatedAt())
                 .updatedAt(serviceProviderProfile.getUpdatedAt())
                 .build();
+    }
+
+    @Transactional
+    public void createUpgradeRequest(ServiceProviderProfileRequest request) {
+        User user = userService.getUser();
+        ServiceProviderUpgradeRequest upgradeRequest = ServiceProviderUpgradeRequest.builder()
+                .user(user)
+                .businessName(request.getBusinessName())
+                .businessBio(request.getBusinessBio())
+                .businessAddress(request.getBusinessAddress())
+                .contactPhone(request.getContactPhone())
+                .contactEmail(request.getContactEmail())
+                .availableTime(request.getAvailableTime())
+                .imageUrls(request.getImageUrls() != null ? new HashSet<>(request.getImageUrls()) : null)
+                .idCardFrontUrl(request.getIdCardFrontUrl())
+                .idCardBackUrl(request.getIdCardBackUrl())
+                .status(ServiceProviderUpgradeRequest.Status.PENDING)
+                .build();
+        upgradeRequestRepository.save(upgradeRequest);
+    }
+
+    @Transactional
+    public void approveUpgradeRequest(UUID requestId) {
+        ServiceProviderUpgradeRequest request = upgradeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Upgrade request not found"));
+        if (request.getStatus() != ServiceProviderUpgradeRequest.Status.PENDING) {
+            throw new RuntimeException("Request is not pending");
+        }
+        User user = request.getUser();
+        Profile existingProfile = profileRepository.findByUserId(user.getId());
+        if (existingProfile == null) {
+            throw new RuntimeException("Profile not found");
+        }
+        // Only set status and isAcceptedProvider
+        request.setStatus(ServiceProviderUpgradeRequest.Status.APPROVED);
+        existingProfile.setIsAcceptedProvider(true);
+        profileRepository.save(existingProfile);
+        upgradeRequestRepository.save(request);
+        // Notify user
+        String approvedMsg = messageSourceService.get("provider_upgrade_approved");
+        notificationService.sendNotification(user, approvedMsg, request.getId(), userService.getCurrentUserId());
+    }
+
+    @Transactional
+    public void rejectUpgradeRequest(UUID requestId, String reason) {
+        User currentUserId = userService.getUser();
+        ServiceProviderUpgradeRequest request = upgradeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Upgrade request not found"));
+        if (request.getStatus() != ServiceProviderUpgradeRequest.Status.PENDING) {
+            throw new RuntimeException("Request is not pending");
+        }
+        request.setStatus(ServiceProviderUpgradeRequest.Status.REJECTED);
+        request.setRejectionReason(reason);
+        upgradeRequestRepository.save(request);
+        // Notify user
+        String rejectedMsg = messageSourceService.get("provider_upgrade_rejected", new String[]{reason != null ? reason : messageSourceService.get("provider_upgrade_no_reason")});
+        notificationService.sendNotification(request.getUser(), rejectedMsg, request.getId(), currentUserId.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ServiceProviderUpgradeRequest> getAllPendingUpgradeRequestsWithUser() {
+        return upgradeRequestRepository.findAllPendingWithUser();
+    }
+
+    @Transactional
+    public void confirmUpgradeToProvider() {
+        User user = userService.getUser();
+        Profile profile = profileRepository.findByUserId(user.getId());
+        if (profile == null || !Boolean.TRUE.equals(profile.getIsAcceptedProvider())) {
+            throw new RuntimeException("You are not eligible to upgrade now");
+        }
+        // Upgrade role
+        user.setRole(roleService.findByName(Constants.RoleEnum.SERVICE_PROVIDER));
+        userRepository.save(user);
+        // Create ServiceProviderProfile from the latest approved request
+        ServiceProviderUpgradeRequest request = upgradeRequestRepository
+            .findTopByUserIdAndStatusOrderByCreatedAtDesc(user.getId())
+            .orElseThrow(() -> new RuntimeException("No approved upgrade request found"));
+        ServiceProviderProfile serviceProviderProfile = ServiceProviderProfile.builder()
+            .profile(profile)
+            .businessName(request.getBusinessName())
+            .businessBio(request.getBusinessBio())
+            .businessAddress(request.getBusinessAddress())
+            .contactEmail(request.getContactEmail())
+            .contactPhone(request.getContactPhone())
+            .availableTime(request.getAvailableTime())
+            .imageUrls(request.getImageUrls() != null ? new HashSet<>(request.getImageUrls()) : null)
+            .idCardFrontUrl(request.getIdCardFrontUrl())
+            .idCardBackUrl(request.getIdCardBackUrl())
+            .build();
+        setupBidirectionalRelationship(profile, serviceProviderProfile);
+        profile.setIsAcceptedProvider(false);
+        profileRepository.save(profile);
     }
 }

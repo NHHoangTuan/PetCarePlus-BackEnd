@@ -41,13 +41,13 @@ public class ServiceProviderProfileController extends BaseController {
 
         @PostMapping
         @Operation(tags = {
-                        "Service Provider Profile" }, summary = "Create service provider profile", description = "API để tạo profile cho nhà cung cấp dịch vụ")
-        public ResponseEntity<SuccessResponse> createServiceProviderProfile(
+                        "Service Provider Profile" }, summary = "Request upgrade to service provider", description = "API để gửi yêu cầu nâng cấp lên nhà cung cấp dịch vụ, kèm ảnh 2 mặt CCCD")
+        public ResponseEntity<SuccessResponse> requestUpgradeToServiceProvider(
                         @RequestBody ServiceProviderProfileRequest serviceProviderProfileRequest) {
-                serviceProviderProfileService.saveServiceProviderProfile(serviceProviderProfileRequest);
+                serviceProviderProfileService.createUpgradeRequest(serviceProviderProfileRequest);
 
                 return ResponseEntity.ok(SuccessResponse.builder()
-                                .message(messageSourceService.get("profile_created"))
+                                .message(messageSourceService.get("upgrade_request_submitted"))
                                 .build());
         }
 

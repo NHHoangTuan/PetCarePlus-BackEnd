@@ -27,4 +27,6 @@ public class ServiceProviderProfileRequest {
 
     private Set<String> imageUrls;
 
+    private String idCardFrontUrl;
+    private String idCardBackUrl;
 }

@@ -36,6 +36,8 @@ public class ProfileResponse extends ResponseObject {
 
     private LocalDateTime deletedAt;
 
+    private Boolean isAcceptedProvider;
+
     public static ProfileResponse convert(Profile profile) {
         if (profile == null) {
             return null;
@@ -52,7 +54,8 @@ public class ProfileResponse extends ResponseObject {
                 .isServiceProvider(profile.isServiceProvider())
                 .createdAt(profile.getCreatedAt())
                 .updatedAt(profile.getUpdatedAt())
-                .deletedAt(profile.getDeletedAt());
+                .deletedAt(profile.getDeletedAt())
+                .isAcceptedProvider(profile.getIsAcceptedProvider());
 
         return builder.build();
     }

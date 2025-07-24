@@ -17,6 +17,8 @@ import petitus.petcareplus.model.spec.criteria.PaginationCriteria;
 import petitus.petcareplus.model.spec.criteria.ProfileCriteria;
 import petitus.petcareplus.service.MessageSourceService;
 import petitus.petcareplus.service.ProfileService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import petitus.petcareplus.service.ServiceProviderProfileService;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -32,6 +34,8 @@ public class ProfileController extends BaseController {
         private final ProfileService profileService;
 
         private final MessageSourceService messageSourceService;
+
+        private final ServiceProviderProfileService serviceProviderProfileService;
 
         @PutMapping
         @Operation(tags = { "Profile" }, summary = "Update profile", description = "API để cập nhật profile")
@@ -103,5 +107,13 @@ public class ProfileController extends BaseController {
                         "Profile" }, summary = "Get my profile", description = "API để lấy thông tin profile của tôi")
         public ResponseEntity<ProfileResponse> getMyProfile() {
                 return ResponseEntity.ok(ProfileResponse.convert(profileService.getMyProfile()));
+        }
+
+        @PostMapping("/confirm-upgrade-provider")
+        @PreAuthorize("hasAuthority('USER')")
+        @Operation(tags = { "Profile" }, summary = "Confirm upgrade to service provider", description = "User confirms upgrade to provider after admin approval")
+        public ResponseEntity<SuccessResponse> confirmUpgradeToProvider() {
+            serviceProviderProfileService.confirmUpgradeToProvider();
+            return ResponseEntity.ok(SuccessResponse.builder().message("Upgraded to provider successfully").build());
         }
 }
