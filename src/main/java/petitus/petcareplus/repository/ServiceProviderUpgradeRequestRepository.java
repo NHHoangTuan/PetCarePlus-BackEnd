@@ -10,6 +10,7 @@ import java.util.UUID;
 public interface ServiceProviderUpgradeRequestRepository extends JpaRepository<ServiceProviderUpgradeRequest, UUID> {
     @Query("SELECT r FROM ServiceProviderUpgradeRequest r " +
             "LEFT JOIN FETCH r.user " +
-            "WHERE r.status = petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest.Status.PENDING")
+            "LEFT JOIN FETCH r.imageUrls " +
+            "WHERE r.status = ServiceProviderUpgradeRequest.Status.PENDING")
     List<ServiceProviderUpgradeRequest> findAllPendingWithUser();
 } 

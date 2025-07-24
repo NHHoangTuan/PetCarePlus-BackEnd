@@ -66,7 +66,7 @@ public class ChatNotificationService {
         
         List<String> receiverTokens = fcmTokenService.getUserTokens(chatMessage.getRecipientId());
         if (!receiverTokens.isEmpty()) {
-            String title = "New message from " + sender.getFullName();
+            String title = "💬 New message from " + sender.getFullName() + "! 🐾";
             
             // Decrypt the message content for FCM notification
             String body;
