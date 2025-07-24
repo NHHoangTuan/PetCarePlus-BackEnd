@@ -20,7 +20,7 @@ import petitus.petcareplus.model.profile.ServiceProviderProfile;
 import petitus.petcareplus.service.MessageSourceService;
 import petitus.petcareplus.service.ServiceProviderProfileService;
 import petitus.petcareplus.service.ServiceReviewService;
-import petitus.petcareplus.model.ServiceProviderUpgradeRequest;
+import petitus.petcareplus.model.profile.ServiceProviderUpgradeRequest;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
