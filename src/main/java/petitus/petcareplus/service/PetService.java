@@ -243,4 +243,10 @@ public class PetService {
                 "speciesDistribution", speciesCount,
                 "breedDistribution", breedCount);
     }
+
+    // Check if user has any pets
+    public boolean userHasPets() {
+        UUID userId = userService.getCurrentUserId();
+        return petRepository.existsByUserId(userId);
+    }
 }

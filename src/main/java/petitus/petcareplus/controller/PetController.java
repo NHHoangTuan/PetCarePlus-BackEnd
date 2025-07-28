@@ -64,4 +64,12 @@ public class PetController {
         petService.deletePet(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/has-pet")
+    @Operation(summary = "Check if user has pets", description = "Kiểm tra người dùng có thú cưng hay không")
+    public ResponseEntity<Boolean> hasPets() {
+        boolean hasPets = petService.userHasPets();
+        return ResponseEntity.ok(hasPets);
+    }
 }

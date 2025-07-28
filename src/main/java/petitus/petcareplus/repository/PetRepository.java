@@ -44,4 +44,6 @@ public interface PetRepository extends JpaRepository<Pet, UUID>, JpaSpecificatio
                         result -> (String) result[0],
                         result -> (Long) result[1]));
     }
+
+    boolean existsByUserId(UUID userId);
 }
