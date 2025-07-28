@@ -165,4 +165,10 @@ public class ProviderServiceController {
                 return ResponseEntity.ok(response);
         }
 
+        @GetMapping("/user/{userId}")
+        @Operation(summary = "Get all provider services by user ID")
+        public ResponseEntity<List<ProviderServiceResponse>> getProviderServicesByUserId(@PathVariable UUID userId) {
+                List<ProviderServiceResponse> response = providerServiceService.getProviderServices(userId);
+                return ResponseEntity.ok(response);
+        }
 }
