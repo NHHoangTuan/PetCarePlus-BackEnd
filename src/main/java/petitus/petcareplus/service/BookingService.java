@@ -428,6 +428,7 @@ public class BookingService {
                 .userAvatar(booking.getUser().getProfile().getAvatarUrl())
                 .providerId(booking.getProvider().getId())
                 .providerName(booking.getProvider().getFullName())
+                .providerAvatar(booking.getProvider().getProfile().getAvatarUrl())
                 .status(booking.getStatus().name())
                 .totalPrice(booking.getTotalPrice())
                 .paymentStatus(booking.getPaymentStatus().name())
