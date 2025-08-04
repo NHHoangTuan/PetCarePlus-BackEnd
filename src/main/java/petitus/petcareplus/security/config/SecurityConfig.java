@@ -59,7 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/payments/payos-return").permitAll()
                         .requestMatchers("/payments/payos-cancel").permitAll()
                         .requestMatchers("/payments/payos/webhook").permitAll()
-                        .requestMatchers("/dev/create-admin").permitAll()
+                        .requestMatchers("/dev/**").permitAll()
                         .requestMatchers("/health").permitAll()
                         .requestMatchers("/terms/**").permitAll()
 
