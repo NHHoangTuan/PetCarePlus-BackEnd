@@ -71,8 +71,6 @@ jobs:
               POSTGRES_USER="${{ secrets.POSTGRES_USER }}" \
               POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" \
               REDIS_PUBLIC_URL="${{ secrets.REDIS_PUBLIC_URL }}" \
-              REDISPORT="${{ secrets.REDISPORT }}" \
-              REDISPASSWORD="${{ secrets.REDISPASSWORD }}" \
               SPRING_MAIL_USERNAME="${{ secrets.SPRING_MAIL_USERNAME }}" \
               SPRING_MAIL_PASSWORD="${{ secrets.SPRING_MAIL_PASSWORD }}" \
               VNPAY_SECRET_KEY="${{ secrets.VNPAY_SECRET_KEY }}" \
@@ -87,3 +85,4 @@ jobs:
               APPLICATION_SECURITY_JWT_SECRET_KEY="${{ secrets.APPLICATION_SECURITY_JWT_SECRET_KEY }}" \
               SPRING_PROFILES_ACTIVE="azure"
           
+
