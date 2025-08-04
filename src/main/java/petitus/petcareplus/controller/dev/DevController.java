@@ -6,6 +6,9 @@ import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.*;
@@ -32,5 +35,18 @@ public class DevController extends BaseController {
             throws BindException {
         User newAdmin = adminService.createAdmin(request);
         return ResponseEntity.ok(UserResponse.convert(newAdmin));
+    }
+
+    // Add debug endpoint
+    @GetMapping("/debug/redis-config")
+    public ResponseEntity<Map<String, Object>> checkRedisConfig() {
+        Map<String, Object> config = new HashMap<>();
+
+        config.put("REDIS_PUBLIC_URL", System.getenv("REDIS_PUBLIC_URL"));
+        config.put("REDISHOST", System.getenv("REDISHOST"));
+        config.put("REDISPORT", System.getenv("REDISPORT"));
+        config.put("REDISPASSWORD", System.getenv("REDISPASSWORD") != null ? "***SET***" : "NOT_SET");
+
+        return ResponseEntity.ok(config);
     }
 }
