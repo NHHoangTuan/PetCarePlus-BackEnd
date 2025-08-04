@@ -2,6 +2,8 @@ package petitus.petcareplus.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +33,7 @@ import petitus.petcareplus.utils.Constants;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -58,6 +61,7 @@ public class AuthService {
     private final ApplicationEventPublisher eventPublisher;
 
     public TokenResponse login(String email, String password) {
+        log.info("Login attempt for email: {}", email);
         String badCredentialsMessage = messageSourceService.get("bad_credentials");
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BadCredentialsException(messageSourceService.get("user_not_found")));
@@ -72,10 +76,15 @@ public class AuthService {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email,
                 password);
         try {
+            log.debug("Attempting authentication with AuthenticationManager");
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+            log.info("Authentication successful for user: {}", email);
 
             // Determine if user is a service provider
             boolean isServiceProvider = user.getProfile() != null && user.getProfile().isServiceProvider();
+
+            log.debug("User {} is service provider: {}", email, isServiceProvider);
 
             return generateTokens(((JwtUserDetails) authentication.getPrincipal()).getId(), isServiceProvider);
 
