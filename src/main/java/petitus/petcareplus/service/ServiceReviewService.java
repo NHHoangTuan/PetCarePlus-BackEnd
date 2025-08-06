@@ -46,6 +46,7 @@ public class ServiceReviewService {
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
     private final MessageSourceService messageSourceService;
 
+    @Transactional(readOnly = true)
     public Page<ServiceReviewResponse> getAllReviews(ServiceReviewCriteria criteria, PaginationCriteria pagination) {
         // Build specification từ criteria
         Specification<ServiceReview> specification = new ServiceReviewSpecification(criteria);
@@ -165,6 +166,7 @@ public class ServiceReviewService {
         updateProviderRating(review.getProviderService().getProvider().getId());
     }
 
+    @Transactional(readOnly = true)
     public ServiceReviewResponse getReview(UUID reviewId) {
         ServiceReview review = serviceReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResourceNotFoundException(messageSourceService.get("review_not_found")));
@@ -176,6 +178,7 @@ public class ServiceReviewService {
         return mapToServiceReviewResponse(review);
     }
 
+    @Transactional(readOnly = true)
     public Page<ServiceReviewResponse> getUserReviews(PaginationCriteria pagination) {
         UUID userId = userService.getCurrentUserId();
         ServiceReviewCriteria criteria = ServiceReviewCriteria.builder()
@@ -184,6 +187,7 @@ public class ServiceReviewService {
         return getAllReviews(criteria, pagination);
     }
 
+    @Transactional(readOnly = true)
     public Page<ServiceReviewResponse> getServiceReviews(UUID providerServiceId, ServiceReviewCriteria criteria,
             PaginationCriteria pagination) {
         // Validate provider service exists
@@ -202,6 +206,7 @@ public class ServiceReviewService {
     // .map(this::mapToServiceReviewResponse);
     // }
 
+    @Transactional(readOnly = true)
     public Page<ServiceReviewResponse> getProviderReviews(UUID providerId, PaginationCriteria pagination) {
         // Validate provider exists
         if (!userRepository.existsById(providerId)) {

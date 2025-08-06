@@ -46,6 +46,7 @@ public class Profile extends AbstractBaseEntity {
     private String about;
 
     @Column(name = "is_accepted_provider")
+    @Builder.Default
     private Boolean isAcceptedProvider = false;
 
     @Version
